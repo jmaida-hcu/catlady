@@ -6,7 +6,7 @@ Doom in the browser, in pure JavaScript — no framework, no build step, no serv
 
 Spipu-Doom (`index.html`) ships as a PWA and converts **any Doom-format WAD on the fly, entirely in the browser**: WAD files are stored in IndexedDB, parsed in JS (geometry, textures, doors, lifts, switches, monsters, weapons, sounds and music) and turned directly into in-memory engine objects — no server-side conversion, no generated files. Everything game-specific lives in **game profiles** (Doom, Freedoom, **Heretic**…) auto-detected from the WAD content, so other Doom-engine games plug in without touching the converter.
 
-It runs on **Spipu3D** (`js/engine/`), the 3D engine written for it: renderer, FPS physics, entities, inputs and audio, with no knowledge of Doom whatsoever. The generic web-app layer (`js/webapp/`: bootstrap, storage, settings, translations, input devices, menu building blocks, network) is shared with the other Spipu PWAs. The demos in `_examples/` drive that same engine on other scenes.
+It runs on **Spipu3D** (`js/engine/`), the 3D engine written for it: renderer, FPS physics, entities, inputs and audio, with no knowledge of Doom whatsoever. The generic web-app layer (`js/webapp/`: bootstrap, storage, settings, translations, input devices, menu building blocks, network) is shared with the other Spipu PWAs. Both are copied unchanged from their reference repository, [spipu/3d-engine](https://github.com/spipu/3d-engine), which also holds the examples that drive the engine on other scenes.
 
 ## Play
 
@@ -72,7 +72,7 @@ Then open `http://localhost:8080` and follow steps 2 and 3 above.
 
 ## Controls
 
-Keyboard defaults below are **physical key positions** (WASD = ZQSD on an AZERTY layout) and every one of them can be remapped in the Options modal (from a WAD's menu), one key per action — except `ESC`, the fixed pause key. The gamepad defaults below fit a PlayStation 5 pad; its buttons (pause included) and its four stick axes can be remapped the same way, one button or axis per action. The `lights`, `game` and `world` demos share this input stack, at the default keys: they answer to the gamepad and to the touch pad the same way, each keeping only the controls it has a use for.
+Keyboard defaults below are **physical key positions** (WASD = ZQSD on an AZERTY layout) and every one of them can be remapped in the Options modal (from a WAD's menu), one key per action — except `ESC`, the fixed pause key. The gamepad defaults below fit a PlayStation 5 pad; its buttons (pause included) and its four stick axes can be remapped the same way, one button or axis per action.
 
 | Keyboard / mouse | Gamepad | Action |
 |---|---|---|
@@ -96,7 +96,9 @@ The gamepad is only visible to the page after a button has been pressed on it (b
 
 `js/engine/` is a standalone 3D engine with no external dependency: it renders textured, lit 3D objects entirely in the browser through the HTML5 `<canvas>` API, and carries a full FPS physics engine (collision detection, gravity, jumping, crouching, animated objects) for one or several users sharing a world, each moved by its own command and blocking the others. It never depends on `js/doom/`: it exposes parameterisable primitives (depth shading, per-instance light and render offset, external forces, screen sprites…) that the game layer feeds with its own constants.
 
-Four rendering modes are available, selectable in the game from the **Display** options page and via the **Renderer** selector on `_examples/objects.html`:
+It also animates skeletal characters: models read from glTF 2.0 files (a skeleton, a skinned mesh, clips and their events, sockets for held objects), played with cross-fades from one clip to the next, moved by root motion (the clips' own travel, so the feet do not slide), objects held in a hand following it.
+
+Four rendering modes are available, selectable in the game from the **Display** options page:
 
 | Mode | Description |
 |---|---|
@@ -108,23 +110,6 @@ Four rendering modes are available, selectable in the game from the **Display** 
 In the two textureless modes the game paints enemies red, every pickup blue — keys included, and the exploding barrel counts as a body — every moving part (doors, lifts, floors, stairs) yellow and the switches magenta, so a scene stays readable without its sprites. Both draw the whole frame in one depth-sorted pass, so a body behind a wall stays behind it instead of being painted over the map.
 
 Whatever the mode, instances are frustum-culled in camera space before any per-vertex work; the static level map is one single object, always drawn whole.
-
-### Demo pages
-
-| Page | Description |
-|---|---|
-| `_examples/index.html` | Home page — links to all demos |
-| `_examples/objects.html` | Object viewer — pick an object, resolution and renderer |
-| `_examples/example.html` | Static render of the Lotus F1 |
-| `_examples/lights.html` | Coloured light sources demo — move them around |
-| `_examples/game.html` | Interactive van — drive it |
-| `_examples/world.html` | First-person navigation inside a 3D labyrinth |
-| `_examples/pairing-test.html` | Network test bench — devices pair by QR code (or two tabs in loopback), link over WebRTC, measure their ping and exchange chunked bursts |
-| `_examples/pairing-game.html` | Network game — the main drives the van through the synchronous turn cycle (a state to every sub, a command back from each, then the next turn), every paired sub watches it live with its ping and the turn rate |
-
-Lights, game and world run in a 16:9 letterboxed fullscreen and take keyboard, gamepad or touch pad, exactly like the game.
-
-Demo objects (cube, sphere, lotus, van…) and the labyrinth world live in `_examples/assets/`.
 
 ## Architecture
 
@@ -139,7 +124,6 @@ website/
 ├── css/                      Shell + doom menu theme; webapp/: the structure of the generic menus
 ├── assets/uzdoom/            UZDoom impact-decal graphics + finale texts (GPL v3 — own LICENSE.md + README.md)
 ├── assets/spipu/             Our own graphics: the generic splash masks, colourised at level load
-├── _examples/                Spipu3D demos, their assets and definitions, and libBootstrap.json (the engine files the demos load)
 ├── lib/libadlmidi/           Vendored libADLMIDI-JS OPL3 synthesizer (LGPL v3 — own LICENSE.md + modification README.md)
 ├── lib/zxing-wasm/           Vendored zxing-wasm QR code reader and writer (MIT, Apache-2.0, BSD-3 — own LICENSE.md + README.md)
 └── js/
@@ -208,7 +192,7 @@ website/
 
 ## In-memory loading
 
-The engine loaders accept either URLs (classic flow, used by the demo pages) or in-memory data (used by the WAD converter):
+The engine loaders accept either URLs or in-memory data (used by the WAD converter):
 
 ```javascript
 loader.reset();
@@ -224,59 +208,11 @@ loader.endBatch();                                      // finalizes everything 
 
 ## Webapp bootstrap
 
-Every page is loaded by the generic `appBootstrap` (global instance) from `libBootstrap.json`-style definitions (`{version, files: {assets, css, js}}`). The game loads one: `js/libBootstrap.json`, which lists every file it uses. The demos stack `_examples/libBootstrap.json` (the engine files, the same list as the game's) with their own definition, and register their entry point:
-
-```html
-<div id="screen"></div>
-<script src="/js/webapp/appBootstrap.js"></script>
-<script>
-function loadApp()
-{
-    loader.world().load('./assets/world/definition.json');
-    loader.setCallback(init);
-}
-
-appBootstrap.disablePwaMode();                                       // demos only — doom keeps PWA mode
-appBootstrap.addBootstrapDefinition('/_examples/libBootstrap.json');
-appBootstrap.addBootstrapDefinition('./assets/world.json');
-appBootstrap.setReadyCallback(loadApp);
-</script>
-```
-
-When several definitions are stacked (the demos), their versions are aggregated (`v2.001|v1.018`): a change in any of them triggers a full update — in PWA mode the Service Worker clears its cache and re-downloads everything; in classic mode the page reloads with `?v=` cache-busted URLs (`appBootstrap.buildUrl`).
-
-## Page pattern
-
-```javascript
-function init() {
-    const world = loader.world().get();
-    screen = new ScreenManager('screen', { fullscreen: true });  // or { width, height }
-                                                                 // or { fullscreen: true, virtualWidth: 1920, virtualHeight: 1080 }
-    inputs  = new Inputs().bindScreen(screen);  // one single instance per page, rebound on each level
-    sampler = new InputCommandSampler(inputs);  // the devices, turned into one command per turn
-    engine = new Engine3d(screen, new Object3dRendererList().getRenderer('webgl'));  // binds itself to the screen
-    const hud = new HudDebug(engine)
-        .bindUser(world.getUser()).bindInputs(inputs)
-        .addDescription('(c)2026 Spipu')
-    ;
-    screen.bindHud(hud);
-    engine.initFromWorld(world);
-    requestAnimationFrame(animate);
-}
-
-function animate(timestamp) {
-    engine.calculateDeltaTime(timestamp);
-    const dt = engine.getDeltaTime();
-    world.update(dt, new Map([[world.getUser(), sampler.collect(dt).sample()]]));  // one command per user
-    engine.displayWorld(world, world.getUser());  // the camera looks through one user
-    screen.update(); // updates HUD overlay
-    requestAnimationFrame(animate);
-}
-```
+The game is loaded by the generic `appBootstrap` (global instance) from one `libBootstrap.json`-style definition (`{version, files: {assets, css, js}}`): `js/libBootstrap.json`, which lists every file it uses. A change of its version triggers a full update — in PWA mode the Service Worker clears its cache and re-downloads everything; in classic mode the page reloads with `?v=` cache-busted URLs (`appBootstrap.buildUrl`). How a page drives the engine is shown by the examples of [spipu/3d-engine](https://github.com/spipu/3d-engine).
 
 ## Versioning
 
-After any file change, increment the `version` of `js/libBootstrap.json`; when the file is loaded by the demos too (an engine file), increment `_examples/libBootstrap.json` as well, and a new engine file is declared in both, in the same order (the bench checks it). This drives both the PWA cache refresh and the classic-mode cache busting.
+After any file change, increment the `version` of `js/libBootstrap.json`. This drives both the PWA cache refresh and the classic-mode cache busting. A file of `js/engine/` or `js/webapp/` is changed in [spipu/3d-engine](https://github.com/spipu/3d-engine) first, then copied here unchanged.
 
 ## Next steps
 
