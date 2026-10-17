@@ -18,7 +18,7 @@
   },
   "bootstrap/js": {
     "versionValid": true,
-    "declared": 353,
+    "declared": 357,
     "missing": [],
     "duplicates": [],
     "undeclared": []
