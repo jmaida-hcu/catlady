@@ -130,14 +130,13 @@ class BenchContext {
     }
 }
 
-BenchContext.WEBSITE            = path.resolve(__dirname, '..', '..', 'website');
-BenchContext.BOOTSTRAP          = 'js/libBootstrap.json';
-BenchContext.EXAMPLES_BOOTSTRAP = '_examples/libBootstrap.json';
-BenchContext.PATCH_CATALOGS     = ['assets/uzdoom/doom/levelPatches.json', 'assets/uzdoom/heretic/levelPatches.json'];
-BenchContext.ORIGIN             = 'http://bench.local';
+BenchContext.WEBSITE        = path.resolve(__dirname, '..', '..', 'website');
+BenchContext.BOOTSTRAP      = 'js/libBootstrap.json';
+BenchContext.PATCH_CATALOGS = ['assets/uzdoom/doom/levelPatches.json', 'assets/uzdoom/heretic/levelPatches.json'];
+BenchContext.ORIGIN         = 'http://bench.local';
 // Numerical Recipes LCG, 32-bit.
-BenchContext.LCG_MULTIPLIER     = 1664525;
-BenchContext.LCG_INCREMENT      = 1013904223;
-BenchContext.LCG_MODULUS        = 4294967296;
+BenchContext.LCG_MULTIPLIER = 1664525;
+BenchContext.LCG_INCREMENT  = 1013904223;
+BenchContext.LCG_MODULUS    = 4294967296;
 
 module.exports = {BenchContext};

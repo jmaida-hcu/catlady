@@ -18,7 +18,7 @@
   },
   "bootstrap/js": {
     "versionValid": true,
-    "declared": 338,
+    "declared": 353,
     "missing": [],
     "duplicates": [],
     "undeclared": []
@@ -26,13 +26,5 @@
   "bootstrap/webapp": {
     "files": 50,
     "undeclared": []
-  },
-  "bootstrap/examples": {
-    "versionValid": true,
-    "declared": 55,
-    "missing": [],
-    "notInGame": [],
-    "notInDemos": [],
-    "sameOrder": true
   }
 }

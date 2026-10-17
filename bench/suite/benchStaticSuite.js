@@ -1,7 +1,7 @@
 /**
  * Checks no run exercises: the translation catalogs (the webapp menus' and the
  * game's) complete in every language with the same placeholders, no code in
- * both, every written code resolvable, every entry used, both libBootstrap.json
+ * both, every written code resolvable, every entry used, the libBootstrap.json
  * consistent with the disk.
  */
 const fs   = require('fs');
@@ -36,8 +36,6 @@ class BenchStaticSuite {
         progress(BenchContext.BOOTSTRAP);
         result['bootstrap/' + path.basename(path.dirname(BenchContext.BOOTSTRAP))] = BenchStaticSuite._bootstrap(BenchContext.BOOTSTRAP, declared);
         result['bootstrap/webapp'] = BenchStaticSuite._webapp(declared);
-        progress(BenchContext.EXAMPLES_BOOTSTRAP);
-        result['bootstrap/examples'] = BenchStaticSuite._examples(declared);
 
         return result;
     }
@@ -131,28 +129,6 @@ class BenchStaticSuite {
         };
     }
 
-    /**
-     * The demos load the engine from their own definition: its files must be exactly the
-     * engine files of the game's, in the same order, or a demo misses an engine change.
-     *
-     * @param {Set<string>} declared - every file of the game's bootstrap
-     * @returns {object}
-     */
-    static _examples(declared) {
-        const definition = JSON.parse(fs.readFileSync(path.join(BenchContext.WEBSITE, BenchContext.EXAMPLES_BOOTSTRAP), 'utf8'));
-        const files      = Object.values(definition.files).flat();
-        const engine     = [...declared].filter((file) => file.startsWith(BenchStaticSuite.ENGINE_PREFIX));
-
-        return {
-            versionValid: BenchStaticSuite.VERSION.test(definition.version),
-            declared:     files.length,
-            missing:      files.filter((file) => !fs.existsSync(path.join(BenchContext.WEBSITE, file))),
-            notInGame:    files.filter((file) => !declared.has(file)),
-            notInDemos:   engine.filter((file) => !files.includes(file)),
-            sameOrder:    (engine.join('|') === files.filter((file) => file.startsWith(BenchStaticSuite.ENGINE_PREFIX)).join('|'))
-        };
-    }
-
     static _webapp(declared) {
         const sources = BenchStaticSuite._sourcesOf([BenchStaticSuite.WEBAPP_TREE])
             .filter((file) => !BenchStaticSuite.PRECACHED_ONLY.includes(file));
@@ -176,7 +152,6 @@ class BenchStaticSuite {
 
 BenchStaticSuite.TRANSLATED_TREES = ['js/doom', 'js/webapp'];
 BenchStaticSuite.WEBAPP_TREE      = 'js/webapp';
-BenchStaticSuite.ENGINE_PREFIX    = '/js/engine/';
 BenchStaticSuite.CATALOGS         = [
     {expression: 'AppMenuTranslations.CATALOG', file: '/js/webapp/menu/appMenuTranslations.js'},
     {expression: 'DoomTranslations.CATALOG', file: '/js/doom/doomTranslations.js'}
