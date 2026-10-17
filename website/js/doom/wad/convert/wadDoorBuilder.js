@@ -2,7 +2,7 @@
  * Door instances builder (transposition of the door generation phase of
  * convert_wad.py main()): world-space geometry + instance data with keyframes.
  */
-class WadDoorBuilder extends window.AbstractMoverBuilder {
+const WadDoorBuilder__Real = class WadDoorBuilder extends window.AbstractMoverBuilder {
     _sectorIds() {
         return this._analysis.doorSectorIds;
     }
@@ -270,4 +270,8 @@ class WadDoorBuilder extends window.AbstractMoverBuilder {
             {t: tRest + 1.0,   translate: [0, restY, 0],   rotate: [0, 0, 0]}
         ];
     }
+}
+
+if (typeof window !== 'undefined') {
+    window.WadDoorBuilder = WadDoorBuilder__Real;
 }

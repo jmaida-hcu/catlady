@@ -9,6 +9,9 @@
 // before their base class landed). Merge the real body into that constructor so
 // every early `extends AbstractMoverBuilder` keeps working; otherwise declare it normally.
 window.__AbstractMoverBuilderDefined = true;
+// Identity of the boot shim (if any). Subclasses evaluated against the shim must be
+// re-parented onto the real class below — see __reparentEarlySubclasses.
+const __MoverShim = (typeof window !== 'undefined') ? window.AbstractMoverBuilder : undefined;
 const AbstractMoverBuilder__Real = class AbstractMoverBuilder {
 
     /**
@@ -162,14 +165,25 @@ const AbstractMoverBuilder__Real = class AbstractMoverBuilder {
     }
 }
 
-if ((typeof window !== 'undefined') && (window.AbstractMoverBuilder !== undefined)
-    && (window.AbstractMoverBuilder !== AbstractMoverBuilder__Real)) {
-    Object.assign(window.AbstractMoverBuilder.prototype, AbstractMoverBuilder__Real.prototype);
-    Object.getOwnPropertyNames(AbstractMoverBuilder__Real)
-        .filter((k) => !['length', 'name', 'prototype'].includes(k))
-        .forEach((k) => { try { window.AbstractMoverBuilder[k] = AbstractMoverBuilder__Real[k]; } catch (e) {} });
-    Object.getOwnPropertyNames(AbstractMoverBuilder__Real.prototype)
-        .forEach((k) => { try { window.AbstractMoverBuilder.prototype[k] = AbstractMoverBuilder__Real.prototype[k]; } catch (e) {} });
-} else if ((typeof window === 'undefined') || (window.AbstractMoverBuilder === undefined)) {
+// Publish the REAL class as window.AbstractMoverBuilder in every case. The old
+// merge-into-shim strategy left early subclasses (WadDoorBuilder & co., which may have
+// evaluated against the shim) with a prototype chain that never reached this real body —
+// their constructors skipped field init and `this._analysis` stayed undefined at build().
+if ((typeof window !== 'undefined') && (window.AbstractMoverBuilder !== AbstractMoverBuilder__Real)) {
+    // Keep any statics the shim picked up before handing over the identity.
+    if (__MoverShim !== undefined && __MoverShim !== null) {
+        Object.getOwnPropertyNames(__MoverShim)
+            .filter((k) => !['length', 'name', 'prototype'].includes(k))
+            .forEach((k) => { try { if (AbstractMoverBuilder__Real[k] === undefined) { AbstractMoverBuilder__Real[k] = __MoverShim[k]; } } catch (e) {} });
+        // Re-parent subclasses that were created against the shim so they inherit the
+        // real constructor (field init) and the real prototype methods.
+        for (const name of ['WadDoorBuilder', 'WadLiftBuilder', 'WadRisingFloorBuilder', 'WadStairBuilder']) {
+            const sub = window[name];
+            if ((typeof sub === 'function') && (Object.getPrototypeOf(sub) === __MoverShim)) {
+                try { Object.setPrototypeOf(sub, AbstractMoverBuilder__Real); } catch (e) {}
+                try { Object.setPrototypeOf(sub.prototype, AbstractMoverBuilder__Real.prototype); } catch (e) {}
+            }
+        }
+    }
     window.AbstractMoverBuilder = AbstractMoverBuilder__Real;
 }

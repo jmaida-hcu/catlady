@@ -5,7 +5,7 @@
  * another step, so it is drawn once. All steps start together: their
  * different travels give the ripple.
  */
-class WadStairBuilder extends window.AbstractMoverBuilder {
+const WadStairBuilder__Real = class WadStairBuilder extends window.AbstractMoverBuilder {
     _sectorIds() {
         return this._analysis.stairIds;
     }
@@ -154,4 +154,8 @@ class WadStairBuilder extends window.AbstractMoverBuilder {
             keyframes:         keyframes
         };
     }
+}
+
+if (typeof window !== 'undefined') {
+    window.WadStairBuilder = WadStairBuilder__Real;
 }
