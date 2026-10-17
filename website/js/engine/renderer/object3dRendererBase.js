@@ -32,6 +32,7 @@ const Object3dRendererBase__Real = class Object3dRendererBase {
     // flat and fast keep this fixed backdrop and get no sky, by design; full and
     // webgl override it with their own scene background.
     begin(engine) {
+        this._scratch();
         engine.scrCtx.fillStyle = Object3dRendererBase.BACKDROP_COLOR;
         engine.scrCtx.fillRect(0, 0, engine.scrWidth, engine.scrHeight);
         this._queue.clear();
@@ -277,6 +278,35 @@ const Object3dRendererBase__Real = class Object3dRendererBase {
         return ((normal[0] * pt[0] + normal[1] * pt[1] + normal[2] * pt[2]) >= 0);
     }
 
+    // Shared scratch buffers are allocated in the constructor, but a subclass
+    // that was created against the boot shim (empty stand-in on window) keeps
+    // its own prototype chain and may run merged base methods without our
+    // constructor ever executing. Lazily recreate any missing buffer here so
+    // such instances never crash on "off is undefined" / "col is undefined".
+    _scratch() {
+        if (this._litColor === undefined) {
+            this._litColor = [0, 0, 0];
+        }
+        if (this._lightContribution === undefined) {
+            this._lightContribution = [0, 0, 0];
+        }
+        if (this._uvOffsetOut === undefined) {
+            this._uvOffsetOut = [0, 0];
+        }
+        if (this._spriteCanvases === undefined) {
+            this._spriteCanvases = new WeakMap();
+        }
+        if (this._queue === undefined) {
+            this._queue = new FaceDepthQueue();
+        }
+        if (this._styles === undefined) {
+            this._styles = [];
+        }
+        if (this._styleIndex === undefined) {
+            this._styleIndex = new Map();
+        }
+    }
+
     _resolveTexId(fc, sceneMs) {
         if (fc.animTextures === null) {
             return fc.textureId;
@@ -289,6 +319,7 @@ const Object3dRendererBase__Real = class Object3dRendererBase {
     // texture-repeat wrap downstream keeps full float precision) plus the
     // anchor following a named instance's vertical shift. Shared array.
     _uvOffset(fc, sceneMs) {
+        this._scratch();
         const off = this._uvOffsetOut;
         off[0] = 0;
         off[1] = 0;
@@ -311,6 +342,7 @@ const Object3dRendererBase__Real = class Object3dRendererBase {
     }
 
     _pointColor(engine, color, pt, normal) {
+        this._scratch();
         const col = this._litColor;
         col[0] = engine.ambientLight[0];
         col[1] = engine.ambientLight[1];
