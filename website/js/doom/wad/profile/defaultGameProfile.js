@@ -90,7 +90,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
     // (bossCubeSpawns). Their views are built with the level — a runtime spawn
     // has no second chance to load a sprite.
     runtimeSpawnTypes() {
-        return ['lostsoul'].concat(DefaultGameProfile.BOSS_CUBE_SPAWNS.map((entry) => entry.kind));
+        return ['lostsoul'].concat(DefaultGameProfile__Real.BOSS_CUBE_SPAWNS.map((entry) => entry.kind));
     }
 
     /**
@@ -101,7 +101,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
      * @returns {object[]} [{below, kind}] in rising order
      */
     bossCubeSpawns() {
-        return DefaultGameProfile.BOSS_CUBE_SPAWNS;
+        return DefaultGameProfile__Real.BOSS_CUBE_SPAWNS;
     }
 
     // linuxdoom p_mobj.c P_SpawnMapThing: types 1 to 4 fill playerstarts[type - 1];
@@ -116,25 +116,25 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
     }
 
     playerBodyData() {
-        return DefaultGameProfile.PLAYER_BODY;
+        return DefaultGameProfile__Real.PLAYER_BODY;
     }
 
     // Netgame pickups (p_inter.c): P_GiveWeapon leaves a placed weapon on the
     // ground (not a dropped one), P_TouchSpecialThing returns before removing a
     // key. Heretic keeps both.
     multiplayerItemRules() {
-        return DefaultGameProfile.MULTIPLAYER_ITEM_RULES;
+        return DefaultGameProfile__Real.MULTIPLAYER_ITEM_RULES;
     }
 
     // p_mobj.c P_RemoveMobj / P_RespawnSpecials: 30 s, an item fog and itmbk,
     // never the invulnerability (MT_INV) nor the invisibility (MT_INS).
     itemRespawnRules() {
-        return DefaultGameProfile.ITEM_RESPAWN_RULES;
+        return DefaultGameProfile__Real.ITEM_RESPAWN_RULES;
     }
 
     // zscript doomplayer.zs Player.ColorRange and Colorset 0-3: green, gray, brown, red.
     playerColors() {
-        return DefaultGameProfile.PLAYER_COLORS;
+        return DefaultGameProfile__Real.PLAYER_COLORS;
     }
 
     // mapinfo/doom2.txt (and tnt/plutonia): only the Icon of Sin's arena lets
@@ -370,7 +370,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
                 code: 'zombieman', name: 'Zombieman', sprite: 'POSS',
                 health: 20, radius: 20, height: 56, speed: 8, painChance: 200,
                 dropItems: [{item: 'Clip'}],
-                params: {bullet: DefaultGameProfile.MONSTER_BULLET},
+                params: {bullet: DefaultGameProfile__Real.MONSTER_BULLET},
                 states: {
                     spawn:   [['AB', 10, 'A_Look', 'spawn']],
                     see:     [['AABBCCDD', 4, 'A_Chase', 'see']],
@@ -385,7 +385,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
                 code: 'shotgunguy', name: 'Shotgun Guy', sprite: 'SPOS',
                 health: 30, radius: 20, height: 56, speed: 8, painChance: 170,
                 dropItems: [{item: 'Shotgun'}],
-                params: {bullet: DefaultGameProfile.MONSTER_BULLET},
+                params: {bullet: DefaultGameProfile__Real.MONSTER_BULLET},
                 states: {
                     spawn:   [['AB', 10, 'A_Look', 'spawn']],
                     see:     [['AABBCCDD', 3, 'A_Chase', 'see']],
@@ -400,7 +400,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
                 code: 'chaingunguy', name: 'Chaingunner', sprite: 'CPOS',
                 health: 70, radius: 20, height: 56, speed: 8, painChance: 170,
                 dropItems: [{item: 'Chaingun'}],
-                params: {bullet: DefaultGameProfile.MONSTER_BULLET},
+                params: {bullet: DefaultGameProfile__Real.MONSTER_BULLET},
                 states: {
                     spawn:   [['AB', 10, 'A_Look', 'spawn']],
                     see:     [['AABBCCDD', 3, 'A_Chase', 'see']],
@@ -415,7 +415,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
                 code: 'wolfss', name: 'Wolfenstein SS', sprite: 'SSWV',
                 health: 50, radius: 20, height: 56, speed: 8, painChance: 170,
                 dropItems: [{item: 'Clip'}],
-                params: {bullet: DefaultGameProfile.MONSTER_BULLET},
+                params: {bullet: DefaultGameProfile__Real.MONSTER_BULLET},
                 states: {
                     spawn:   [['AB', 10, 'A_Look', 'spawn']],
                     see:     [['AABBCCDD', 3, 'A_Chase', 'see']],
@@ -574,7 +574,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
                 health: 3000, radius: 128, height: 100, mass: 1000, speed: 12, painChance: 40,
                 flags: {boss: true, noRadiusDmg: true},
                 bossMaps: ['E3M8', 'E4M8'],
-                params: {missileChanceMult: 0.5, bullet: DefaultGameProfile.MONSTER_BULLET},
+                params: {missileChanceMult: 0.5, bullet: DefaultGameProfile__Real.MONSTER_BULLET},
                 states: {
                     spawn:   [['AB', 10, 'A_Look', 'spawn']],
                     see:     [['A', 3, 'A_Metal'], ['ABB', 3, 'A_Chase'], ['C', 3, 'A_Metal'], ['CDD', 3, 'A_Chase'], ['E', 3, 'A_Metal'], ['EFF', 3, 'A_Chase', 'see']],
@@ -632,7 +632,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
                     pain:  [['B', 36, 'A_BrainPain', 'spawn']],
                     // Its scream lays a line of harmless explosions, then
                     // A_BrainDie ends the level (Level.ExitLevel).
-                    death: [['A', 100, DefaultGameProfile.BRAIN_SCREAM], ['AA', 10], ['A', -1, 'A_BrainDie']]
+                    death: [['A', 100, DefaultGameProfile__Real.BRAIN_SCREAM], ['AA', 10], ['A', -1, 'A_BrainDie']]
                 }
             }),
             // The eye watches for the player, then spits a cube every 150
@@ -1230,7 +1230,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
         // name `DefaultGameProfile` does NOT exist in the method scope — only
         // the __Real binding does. The old code fell back to that bare name,
         // which threw ReferenceError ("can't access property 0,
-        // DefaultGameProfile.E4_MUSIC_REUSE is undefined" family). Read the
+        // DefaultGameProfile__Real.E4_MUSIC_REUSE is undefined" family). Read the
         // tables at CALL time: own statics first, then walk up the prototype
         // chain of the canonical window binding (covers shim-merge cases).
         let tbl = null;
@@ -1412,7 +1412,7 @@ const DefaultGameProfile__Real = class DefaultGameProfile extends window.Abstrac
 // height and started a few tics into its animation. Deviation: vanilla lifts
 // them to an ABSOLUTE height (128 + 2 × random), we lift them above the brain
 // itself, so a PWAD that hangs its brain elsewhere still gets its line.
-DefaultGameProfile.BRAIN_SCREAM = ['A_BrainScream', {
+DefaultGameProfile__Real.BRAIN_SCREAM = ['A_BrainScream', {
     effect:    'brainExplosion',
     fromX:     -196,
     toX:       320,
@@ -1425,7 +1425,7 @@ DefaultGameProfile.BRAIN_SCREAM = ['A_BrainScream', {
 // SpawnFly (bossbrain.zs): the probability ladder of a boss cube, decreasing
 // likelihood. `below` is the exclusive upper bound of the 0..255 roll, so an
 // entry weighs (its bound − the previous one) out of 256.
-DefaultGameProfile.BOSS_CUBE_SPAWNS = [
+DefaultGameProfile__Real.BOSS_CUBE_SPAWNS = [
     {below: 50,  kind: 'imp'},
     {below: 90,  kind: 'demon'},
     {below: 120, kind: 'spectre'},
@@ -1441,10 +1441,10 @@ DefaultGameProfile.BOSS_CUBE_SPAWNS = [
 
 // A_PosAttack / A_SPosAttack / A_CPosAttack all fire the same 3 × (1..5)
 // bullet, and every hitscan monster of the bestiary uses one of them.
-DefaultGameProfile.MONSTER_BULLET = {damage: {base: 3, dice: 5}, puff: 'puff'};
+DefaultGameProfile__Real.MONSTER_BULLET = {damage: {base: 3, dice: 5}, puff: 'puff'};
 // Player.ColorRange 112-127, then Player.Colorset 0-3 of doomplayer.zs: first index and marker of
 // each (its last follows from the range's length).
-DefaultGameProfile.PLAYER_COLORS = {
+DefaultGameProfile__Real.PLAYER_COLORS = {
     range: [0x70, 0x7F],
     slots: [
         {from: 0x70, marker: 0x72},
@@ -1454,7 +1454,7 @@ DefaultGameProfile.PLAYER_COLORS = {
     ]
 };
 // zscript doomplayer.zs.
-DefaultGameProfile.PLAYER_BODY = {
+DefaultGameProfile__Real.PLAYER_BODY = {
     code: 'player', name: 'Marine', sprite: 'PLAY',
     health: 100, radius: 16, height: 56, speed: 1, painChance: 255,
     states: {
@@ -1468,12 +1468,12 @@ DefaultGameProfile.PLAYER_BODY = {
     }
 };
 // P_GiveWeapon gives 5 clips for a placed weapon in deathmatch, 2 otherwise.
-DefaultGameProfile.MULTIPLAYER_ITEM_RULES = {weaponsStay: true, keysStay: true, deathmatchWeaponClips: 5};
-DefaultGameProfile.ITEM_RESPAWN_RULES     = {delayTics: 1050, revealTics: 0, effect: 'itemFog', sound: 'misc/spawn', neverTypes: [2022, 2024]};
+DefaultGameProfile__Real.MULTIPLAYER_ITEM_RULES = {weaponsStay: true, keysStay: true, deathmatchWeaponClips: 5};
+DefaultGameProfile__Real.ITEM_RESPAWN_RULES = {delayTics: 1050, revealTics: 0, effect: 'itemFog', sound: 'misc/spawn', neverTypes: [2022, 2024]};
 
 // Commercial level songs in map order (mapinfo/doom2.txt, the vanilla
 // mus_runnin + map − 1 sequence): lump = 'D_' + name.
-DefaultGameProfile.MAP_MUSIC = [
+DefaultGameProfile__Real.MAP_MUSIC = [
     'RUNNIN', 'STALKS', 'COUNTD', 'BETWEE', 'DOOM',   'THE_DA', 'SHAWN',  'DDTBLU',
     'IN_CIT', 'DEAD',   'STLKS2', 'THEDA2', 'DOOM2',  'DDTBL2', 'RUNNI2', 'DEAD2',
     'STLKS3', 'ROMERO', 'SHAWN2', 'MESSAG', 'COUNT2', 'DDTBL3', 'AMPIE',  'THEDA3',
@@ -1482,7 +1482,7 @@ DefaultGameProfile.MAP_MUSIC = [
 
 // Ultimate Doom's fourth episode reuses earlier songs (linuxdoom s_sound.c
 // spmus table, E4M1..E4M9) — its WAD ships no D_E4M* lump.
-DefaultGameProfile.E4_MUSIC_REUSE = [
+DefaultGameProfile__Real.E4_MUSIC_REUSE = [
     'D_E3M4', 'D_E3M2', 'D_E3M3', 'D_E1M5', 'D_E2M7', 'D_E2M4', 'D_E2M6', 'D_E2M5', 'D_E1M9'
 ];
 
@@ -1520,10 +1520,10 @@ if (typeof window !== 'undefined') {
     // Statics: copy every own property of the real class onto the target.
     ['PLAYER_BODY', 'MULTIPLAYER_ITEM_RULES', 'ITEM_RESPAWN_RULES', 'MAP_MUSIC',
      'E4_MUSIC_REUSE', 'BOSS_CUBE_SPAWNS', 'BRAIN_SCREAM'].forEach((k) => {
-        try { if (_target[k] === undefined) _target[k] = DefaultGameProfile[k]; } catch (e) {}
+        try { if (_target[k] === undefined) _target[k] = DefaultGameProfile__Real[k]; } catch (e) {}
     });
-    Object.getOwnPropertyNames(DefaultGameProfile)
+    Object.getOwnPropertyNames(DefaultGameProfile__Real)
         .filter((k) => !['length', 'name', 'prototype'].includes(k))
-        .forEach((k) => { try { if (_target[k] === undefined) _target[k] = DefaultGameProfile[k]; } catch (e) {} });
+        .forEach((k) => { try { if (_target[k] === undefined) _target[k] = DefaultGameProfile__Real[k]; } catch (e) {} });
     window.__DefaultGameProfileDefined = true;   // only AFTER the real class is on window
 }

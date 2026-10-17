@@ -222,11 +222,12 @@ const AbstractGameProfile__Real = class AbstractGameProfile {
      */
     playerBodyDef() {
         const data = this.playerBodyData();
-        if (!AbstractGameProfile._playerBodies.has(data)) {
-            AbstractGameProfile._playerBodies.set(data, new DoomMonsterDef(data));
+        const _bodies = (window.AbstractGameProfile && window.AbstractGameProfile._playerBodies) || AbstractGameProfile__Real._playerBodies;
+        if (!_bodies.has(data)) {
+            _bodies.set(data, new DoomMonsterDef(data));
         }
 
-        return AbstractGameProfile._playerBodies.get(data);
+        return _bodies.get(data);
     }
 
     /**

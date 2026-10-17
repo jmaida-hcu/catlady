@@ -224,7 +224,7 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
     // HereticAmbience scheduler and its ten AFX environment scripts) — a WAD
     // carrying its own SNDSEQ lump overrides this text entirely (Hexen).
     soundSequencesText() {
-        return HereticGameProfile.SOUND_SEQUENCES;
+        return HereticGameProfile__Real.SOUND_SEQUENCES;
     }
 
     // Raven attenuation ($rolloff * custom 0 1600, game-heretic/sndinfo.txt:8
@@ -255,7 +255,7 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
     // whose block names another episode's song — heretic.wad only carries 19
     // level songs for 48 maps (E2M5, most of E3, and E4-E6 entirely reuse).
     levelMusicLumps(levelCode) {
-        const reused = HereticGameProfile.LEVEL_MUSIC_REUSE[levelCode];
+        const reused = HereticGameProfile__Real.LEVEL_MUSIC_REUSE[levelCode];
         if (reused !== undefined) {
             return [reused];
         }
@@ -295,24 +295,24 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
     }
 
     playerBodyData() {
-        return HereticGameProfile.PLAYER_BODY;
+        return HereticGameProfile__Real.PLAYER_BODY;
     }
 
     // zscript hereticplayer.zs Player.ColorRange and Colorset 0-3: green, yellow, red, blue.
     playerColors() {
-        return HereticGameProfile.PLAYER_COLORS;
+        return HereticGameProfile__Real.PLAYER_COLORS;
     }
 
     // No deathmatch ammo bonus: UZDoom Weapon.AddAmmo keeps the ×5/2 to Doom and Chex.
     multiplayerItemRules() {
-        return HereticGameProfile.MULTIPLAYER_ITEM_RULES;
+        return HereticGameProfile__Real.MULTIPLAYER_ITEM_RULES;
     }
 
     // zscript Inventory HideSpecial: hidden 1400 tics, then the ACLO cloud, the item
     // takeable again at A_RestoreSpecialThing2; the ring of invulnerability is a
     // BIGPOWERUP, never back.
     itemRespawnRules() {
-        return HereticGameProfile.ITEM_RESPAWN_RULES;
+        return HereticGameProfile__Real.ITEM_RESPAWN_RULES;
     }
 
     // A_HBossDeath (heretic p_enemy.c): map 8 of every episode fires
@@ -609,7 +609,7 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
             // (A_KnightAttack picks axe type by range).
             spawn:   [['AB', 10, 'A_Look', 'spawn']],
             see:     [['ABCD', 4, 'A_Chase', 'see']],
-            missile: [['E', 10, 'A_FaceTarget'], ['F', 8, 'A_FaceTarget'], ['G', 8, HereticGameProfile.KNIGHT_ATTACK], ['E', 10, 'A_FaceTarget'], ['F', 8, 'A_FaceTarget'], ['G', 8, HereticGameProfile.KNIGHT_ATTACK, 'see']],
+            missile: [['E', 10, 'A_FaceTarget'], ['F', 8, 'A_FaceTarget'], ['G', 8, HereticGameProfile__Real.KNIGHT_ATTACK], ['E', 10, 'A_FaceTarget'], ['F', 8, 'A_FaceTarget'], ['G', 8, HereticGameProfile__Real.KNIGHT_ATTACK, 'see']],
             pain:    [['H', 3], ['H', 3, 'A_Pain', 'see']],
             death:   [['I', 6], ['J', 6, 'A_Scream'], ['K', 6], ['L', 6, 'A_NoBlocking'], ['MN', 6], ['O', -1]]
         };
@@ -752,7 +752,7 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
                 states: {
                     spawn:   [['A', 10, 'A_Look', 'spawn']],
                     see:     [['A', 4, 'A_Chase', 'see']],
-                    missile: [['A', 5, 'A_FaceTarget'], ['B', 20, HereticGameProfile.LICH_ATTACK, 'see']],
+                    missile: [['A', 5, 'A_FaceTarget'], ['B', 20, HereticGameProfile__Real.LICH_ATTACK, 'see']],
                     pain:    [['A', 4], ['A', 4, 'A_Pain', 'see']],
                     death:   [['C', 7], ['D', 7, 'A_Scream'], ['EF', 7], ['G', 7, 'A_NoBlocking'], ['H', 7], ['I', -1, 'A_BossDeath']]
                 }
@@ -769,7 +769,7 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
                     roam:       [['ABCD', 5, 'A_MinotaurRoam', 'roam']],
                     see:        [['ABCD', 5, 'A_MinotaurChase', 'see']],
                     melee:      [['V', 10, 'A_FaceTarget'], ['W', 7, 'A_FaceTarget'], ['X', 12, ['A_MinotaurAtk1', {damage: {base: 4, dice: 8}}], 'see']],
-                    missile:    [['V', 10, HereticGameProfile.MINOTAUR_DECIDE], ['Y', 4, 'A_FaceTarget'], ['Z', 9, ['A_MinotaurAtk2', {kind: 'minotaurFX1', height: 40, damage: {base: 5, dice: 8}, angles: [0, -5.625, 5.625, -2.8125, 2.8125]}], 'see']],
+                    missile:    [['V', 10, HereticGameProfile__Real.MINOTAUR_DECIDE], ['Y', 4, 'A_FaceTarget'], ['Z', 9, ['A_MinotaurAtk2', {kind: 'minotaurFX1', height: 40, damage: {base: 5, dice: 8}, angles: [0, -5.625, 5.625, -2.8125, 2.8125]}], 'see']],
                     hammer:     [['V', 10, 'A_FaceTarget'], ['W', 7, 'A_FaceTarget'], ['X', 12, ['A_MinotaurAtk3', {damage: {base: 5, dice: 8}, kind: 'minotaurFX2', loopChance: 192, loopState: 'hammerLoop0'}], 'see']],
                     hammerLoop: [['X', 12, null, 'hammer']],
                     charge:     [['U', 2, ['A_MinotaurCharge', {puff: 'phoenixTrail'}], 'charge']],
@@ -791,8 +791,8 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
                     // Entered by A_SorcererRise: he pulls himself up, then chases.
                     rise:      [['AB', 4], ['C', 4], ['DEF', 4], ['G', 12, null, 'see']],
                     pain:      [['Q', 3], ['Q', 6, 'A_Pain', 'see']],
-                    missile:   [['R', 9, HereticGameProfile.SORCERER2_DECIDE], ['S', 9, 'A_FaceTarget'],
-                        ['T', 20, HereticGameProfile.SORCERER2_ATTACK, 'see']],
+                    missile:   [['R', 9, HereticGameProfile__Real.SORCERER2_DECIDE], ['S', 9, 'A_FaceTarget'],
+                        ['T', 20, HereticGameProfile__Real.SORCERER2_ATTACK, 'see']],
                     teleport:  [['LKJIHG', 6, null, 'see']],
                     death:     [['A', 8, ['A_Sor2DthInit', {loops: 7}]], ['B', 8], ['C', 8, 'A_Scream', 'deathLoop']],
                     // The middle of the animation replays seven times before
@@ -809,8 +809,8 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
                     spawn:    [['AB', 10, 'A_Look', 'spawn']],
                     see:      [['ABCD', 5, 'A_Sor1Chase', 'see']],
                     pain:     [['Q', 6, 'A_Sor1Pain', 'see']],
-                    missile:  [['Q', 7, 'A_FaceTarget'], ['R', 6, 'A_FaceTarget'], ['S', 10, HereticGameProfile.SERPENT_ATTACK, 'see']],
-                    missile2: [['S', 10, 'A_FaceTarget'], ['Q', 7, 'A_FaceTarget'], ['R', 6, 'A_FaceTarget'], ['S', 10, HereticGameProfile.SERPENT_ATTACK, 'see']],
+                    missile:  [['Q', 7, 'A_FaceTarget'], ['R', 6, 'A_FaceTarget'], ['S', 10, HereticGameProfile__Real.SERPENT_ATTACK, 'see']],
+                    missile2: [['S', 10, 'A_FaceTarget'], ['Q', 7, 'A_FaceTarget'], ['R', 6, 'A_FaceTarget'], ['S', 10, HereticGameProfile__Real.SERPENT_ATTACK, 'see']],
                     // The mount does not end the fight: its last frame stands
                     // D'Sparil up out of it (A_SorcererRise), and HIS death
                     // fires the map action.
@@ -1492,10 +1492,10 @@ const HereticGameProfile__Real = class HereticGameProfile extends window.Default
 
 // A_KnightAttack (knight.zs): fist in reach, else an axe thrown from 36 units
 // up — the red one, far nastier, on a 40/256 jet (always, for a ghost).
-window.HereticGameProfile.MULTIPLAYER_ITEM_RULES = {weaponsStay: true, keysStay: true, deathmatchWeaponClips: null};
-window.HereticGameProfile.ITEM_RESPAWN_RULES     = {delayTics: 1400, revealTics: 36, effect: 'itemRestore', sound: 'misc/spawn', neverTypes: [84]};
+HereticGameProfile__Real.MULTIPLAYER_ITEM_RULES = {weaponsStay: true, keysStay: true, deathmatchWeaponClips: null};
+HereticGameProfile__Real.ITEM_RESPAWN_RULES = {delayTics: 1400, revealTics: 36, effect: 'itemRestore', sound: 'misc/spawn', neverTypes: [84]};
 
-window.HereticGameProfile.KNIGHT_ATTACK = ['A_KnightAttack', {
+HereticGameProfile__Real.KNIGHT_ATTACK = ['A_KnightAttack', {
     damage:     {base: 3, dice: 8},
     kind:       'knightAxe',
     rareKind:   'redAxe',
@@ -1505,7 +1505,7 @@ window.HereticGameProfile.KNIGHT_ATTACK = ['A_KnightAttack', {
 
 // A_LichAttack (ironlich.zs): fist in reach, else one of three shots drawn
 // against the distance — ice ball, fire column or whirlwind.
-window.HereticGameProfile.LICH_ATTACK = ['A_LichAttack', {
+HereticGameProfile__Real.LICH_ATTACK = ['A_LichAttack', {
     damage:      {base: 6, dice: 8},
     farDistance: 8 * 64,
     iceChance:   [50, 150],
@@ -1519,7 +1519,7 @@ window.HereticGameProfile.LICH_ATTACK = ['A_LichAttack', {
 
 // A_MinotaurDecide (raven/minotaur.zs): the invulnerable charge at mid range,
 // the floor-fire hammer up close, else the swing the state falls through to.
-window.HereticGameProfile.MINOTAUR_DECIDE = ['A_MinotaurDecide', {
+HereticGameProfile__Real.MINOTAUR_DECIDE = ['A_MinotaurDecide', {
     chargeMin:     1 * 64,
     chargeMax:     8 * 64,
     chargeChance:  150,
@@ -1534,7 +1534,7 @@ window.HereticGameProfile.MINOTAUR_DECIDE = ['A_MinotaurDecide', {
 
 // A_Srcr1Attack (dsparil.zs): one fireball while healthy, three once past a
 // third of its life — and then it may chain a second volley.
-window.HereticGameProfile.SERPENT_ATTACK = ['A_Srcr1Attack', {
+HereticGameProfile__Real.SERPENT_ATTACK = ['A_Srcr1Attack', {
     damage:      {base: 8, dice: 8},
     kind:        'sorcererFX1',
     height:      48,
@@ -1550,7 +1550,7 @@ window.HereticGameProfile.SERPENT_ATTACK = ['A_Srcr1Attack', {
 // off eighths of his health, WORST first — at full strength he stands his
 // ground, and the more he bleeds the more he runs. A spot must lie at least
 // 128 units away.
-window.HereticGameProfile.SORCERER2_DECIDE = ['A_Srcr2Decide', {
+HereticGameProfile__Real.SORCERER2_DECIDE = ['A_Srcr2Decide', {
     chances:       [192, 120, 120, 120, 64, 64, 32, 16, 0],
     minDistance:   128,
     teleportState: 'teleport0'
@@ -1558,7 +1558,7 @@ window.HereticGameProfile.SORCERER2_DECIDE = ['A_Srcr2Decide', {
 
 // A_Srcr2Attack: 20 × (1..8) in reach, else the blue bolt — or, twice as often
 // under half his life, the two spawners that hatch disciples at his flanks.
-window.HereticGameProfile.SORCERER2_ATTACK = ['A_Srcr2Attack', {
+HereticGameProfile__Real.SORCERER2_ATTACK = ['A_Srcr2Attack', {
     damage:          {base: 20, dice: 8},
     kind:            'sorcerer2FX1',
     height:          48,
@@ -1571,7 +1571,7 @@ window.HereticGameProfile.SORCERER2_ATTACK = ['A_Srcr2Attack', {
 
 // The maps whose mapinfo block names another episode's song instead of their
 // own MUS_ExMy lump (mapinfo/heretic.txt, extracted map by map).
-window.HereticGameProfile.LEVEL_MUSIC_REUSE = {
+HereticGameProfile__Real.LEVEL_MUSIC_REUSE = {
     E2M5: 'MUS_E1M4',
     E3M1: 'MUS_E1M1', E3M4: 'MUS_E1M6', E3M5: 'MUS_E1M3', E3M6: 'MUS_E1M2',
     E3M7: 'MUS_E1M5', E3M8: 'MUS_E1M9', E3M9: 'MUS_E2M6',
@@ -1585,7 +1585,7 @@ window.HereticGameProfile.LEVEL_MUSIC_REUSE = {
 };
 
 // UZDoom sndseq.txt, Heretic Ambience block, verbatim.
-window.HereticGameProfile.SOUND_SEQUENCES = `
+HereticGameProfile__Real.SOUND_SEQUENCES = `
 // Heretic Ambience ---------------------------
 
 :HereticAmbience
@@ -1735,7 +1735,7 @@ end
 `;
 // Player.ColorRange 225-240, then Player.Colorset 0-3 of hereticplayer.zs: first index and marker
 // of each (its last follows from the range's length).
-window.HereticGameProfile.PLAYER_COLORS = {
+HereticGameProfile__Real.PLAYER_COLORS = {
     range: [225, 240],
     slots: [
         {from: 225, marker: 238},
@@ -1746,7 +1746,7 @@ window.HereticGameProfile.PLAYER_COLORS = {
 };
 // zscript hereticplayer.zs. Left out: the skull of the gibbed death (A_SkullPop)
 // and the fire death (Burn), mechanics the game lacks for the player.
-window.HereticGameProfile.PLAYER_BODY = {
+HereticGameProfile__Real.PLAYER_BODY = {
     code: 'player', name: 'Corvus', sprite: 'PLAY',
     health: 100, radius: 16, height: 56, speed: 1, painChance: 255,
     states: {
