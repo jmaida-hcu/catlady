@@ -110,7 +110,8 @@ BenchNetSuite.CHECKS = {
         const refused  = (bytes, version, kind) => attempt(() => NetPairingCode.decode(bytes, version, kind));
         const answerOf = (wads, nickname) => {
             try {
-                return DoomNetInvite.decodeAnswer(DoomNetInvite.answerFor(decoded.payload, (invite) => DoomNetWadMatch.find(wads, invite), nickname));
+                DoomNetWadMatch.find(wads, DoomNetInvite.decodeInvite(decoded.payload));
+                return NetGameAnswer.decode(NetGameAnswer.encode(nickname));
             } catch (error) {
                 return 'refused: ' + codeOf(error);
             }
@@ -211,7 +212,7 @@ BenchNetSuite.CHECKS = {
     })`,
 
     lobby: `(() => {
-        const lobby = new DoomNetLobby(4);
+        const lobby = new NetLobby(4);
         const steps = [];
         const note  = (what) => steps.push(what + ': ' + lobby.getPlayers().map((p) => p.slot + '=' + p.nickname).join(' ') + ((lobby.hasReservations()) ? ' | reserved ' + lobby.getReserved().map((s) => s.slot + '=' + s.nickname).join(' ') : ''));
         lobby.addMain('Host');
@@ -237,7 +238,7 @@ BenchNetSuite.CHECKS = {
         const none = lobby.claimSeat('Gus');
         note('seats evicted in slot order');
         const released = lobby.releaseSeats();
-        const mirror   = new DoomNetLobby(1).load(JSON.parse(JSON.stringify(lobby.toData())));
+        const mirror   = new NetLobby(1).load(JSON.parse(JSON.stringify(lobby.toData())));
 
         return {
             steps:     steps,

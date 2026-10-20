@@ -5,7 +5,7 @@
  * simulation and everything only the simulating device does: the players
  * entering the level, the save restore and capture, the spawn override, the
  * level clock — and, while it hosts a session, the turn cycle of the subs
- * (DoomNetTurnCycle) and, in cooperative, their players: each one enters the
+ * (NetTurnCycle) and, in cooperative, their players: each one enters the
  * level with its first command and leaves it with its sub — kept aside, with
  * its equipment, while its seat is reserved, and given back on its return. A
  * device that only follows the game holds a DoomSubRole.
@@ -85,7 +85,8 @@ class DoomMainRole extends AbstractGameRole {
      * @param {function(string[])} onWaiting - the nicknames waited for, none once the wait is over
      */
     startHosting(session, onWaiting) {
-        this._cycle = new DoomNetTurnCycle(session).setOnWaiting(onWaiting).setOnPlayerGone((id, keepsSeat) => this._removePlayer(id, keepsSeat))
+        const codec = new DoomNetCommandCodec(DoomSimulation.COMMAND_BUTTONS, DoomSimulation.COMMAND_IMPULSES);
+        this._cycle = new NetTurnCycle(session, codec).setOnWaiting(onWaiting).setOnPlayerGone((id, keepsSeat) => this._removePlayer(id, keepsSeat))
             .setHoldsLevelStart(this._rules.holdsLevelStart());
         this._hostLevel();
         session.setCycle(this._cycle);
@@ -137,7 +138,11 @@ class DoomMainRole extends AbstractGameRole {
         this._recorder = new DoomNetEvents(this._builtLevel.getEntityIds(), this._roster);
         this._events.addListener(this._recorder.getListener());
         const capture = new DoomNetStateCapture(this._roster, this._builtLevel, this._simulation.getLevelStats(), this._recorder);
-        this._cycle.levelStarted(this._level, capture, this._recorder);
+        const recorder = this._recorder;
+        this._cycle.levelStarted(this._level, {
+            encode: (turn) => DoomNetStateCodec.encode(capture.capture(turn)),
+            drain:  () => recorder.drain()
+        });
     }
 
     _detachRecorder() {

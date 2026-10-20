@@ -8,8 +8,8 @@ class MenuJoinFlow {
     /**
      * @param {MenuNavigator}       navigator
      * @param {AppMenuDisplay}         display
-     * @param {DoomNetLinks}        links
-     * @param {DoomNetAvailability} availability
+     * @param {NetGameLinks}        links
+     * @param {NetGameAvailability} availability
      */
     constructor(navigator, display, links, availability) {
         this._navigator    = navigator;
@@ -19,27 +19,27 @@ class MenuJoinFlow {
     }
 
     greyWhenUnavailable(item) {
-        MenuNetGate.greyWhenUnavailable(item, () => this._availability.unavailableReason());
+        AppMenuNetGate.greyWhenUnavailable(item, () => this._availability.unavailableReason());
 
         return this;
     }
 
     start() {
-        MenuNetGate.enter(this._display, () => this._availability.unavailableReason(), async (nickname) => {
+        AppMenuNetGate.enter(this._display, () => this._availability.unavailableReason(), doomSettings, async (nickname) => {
             const wads = await this._navigator.getIdentifiedWads();
             this._pair(new DoomNetSubSession(this._links, wads, nickname));
         });
     }
 
     _pair(session) {
-        new MenuPairingModal(this._display).openForSub(session, () => this._showLobby(session), () => session.dispose());
+        new AppMenuPairingModal(this._display).openForSub(session, () => this._showLobby(session), () => session.dispose());
     }
 
     _showLobby(session) {
-        const lobby = new MenuLobbyModal(this._display);
+        const lobby = new AppMenuLobbyModal(this._display);
         session.setOnEnd((reason) => {
             lobby.close();
-            MenuNetMessages.showEnd(this._display, reason);
+            AppMenuNetMessages.showEnd(this._display, reason);
         });
         session.setCycle({
             levelLoad: (level) => {

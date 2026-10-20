@@ -288,7 +288,7 @@ class MenuNavigator {
     startAtWadMenuAfterSession(meta, reason) {
         return this._boot(() => {
             this.openWadMenu(meta);
-            MenuNetMessages.showEnd(this._display, reason);
+            AppMenuNetMessages.showEnd(this._display, reason);
         });
     }
 

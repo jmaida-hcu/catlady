@@ -60,12 +60,12 @@ class MenuMultiplayerModal extends AbstractGameMenuModal {
         if (this._sessionContext.offersCooperative()) {
             const coop = this._nav.addItemIn(listEl, appTranslator.get('multiplayer.pause.switchToCooperative'),
                 () => this._openGameSettings((nickname) => this._sessionContext.openCooperative(nickname)));
-            MenuNetGate.greyWhenUnavailable(coop, unavailableReason);
+            AppMenuNetGate.greyWhenUnavailable(coop, unavailableReason);
         }
         if (this._sessionContext.offersScreenSharing()) {
             const share = this._nav.addItemIn(listEl, appTranslator.get('multiplayer.pause.share'),
                 () => this._open((nickname) => this._sessionContext.openScreenSharing(nickname)));
-            MenuNetGate.greyWhenUnavailable(share, unavailableReason);
+            AppMenuNetGate.greyWhenUnavailable(share, unavailableReason);
         }
     }
 
@@ -76,7 +76,7 @@ class MenuMultiplayerModal extends AbstractGameMenuModal {
 
     // The game settings of the mode first, then the session opens on them.
     _openGameSettings(openSession) {
-        MenuNetGate.enter(this._display, this._sessionContext.unavailableReason, (nickname) => {
+        AppMenuNetGate.enter(this._display, this._sessionContext.unavailableReason, doomSettings, (nickname) => {
             this._openCoopSettings(() => this._openWith(openSession, nickname));
         });
     }
@@ -86,7 +86,7 @@ class MenuMultiplayerModal extends AbstractGameMenuModal {
     }
 
     _open(openSession) {
-        MenuNetGate.enter(this._display, this._sessionContext.unavailableReason, (nickname) => this._openWith(openSession, nickname));
+        AppMenuNetGate.enter(this._display, this._sessionContext.unavailableReason, doomSettings, (nickname) => this._openWith(openSession, nickname));
     }
 
     _openWith(openSession, nickname) {
@@ -106,7 +106,7 @@ class MenuMultiplayerModal extends AbstractGameMenuModal {
     }
 
     _openLobby() {
-        this._openStacked('lobby', new MenuLobbyModal(this._display)).openMain(this._sessionContext.getSession(), {
+        this._openStacked('lobby', new AppMenuLobbyModal(this._display)).openMain(this._sessionContext.getSession(), {
             start: () => this._resume(),
             back:  null
         });

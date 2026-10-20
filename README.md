@@ -173,8 +173,8 @@ website/
     │   ├── monster/             Monster system: defs, 35 Hz driver, locomotion, senses, attacks, damage, boss deaths, the Icon of Sin, and the drawable body views with their renderer
     │   ├── automap/             Level map: line model, state, and the vanilla BSP reveal
     │   ├── hud/                 Game HUD + debug overlay + automap layer
-    │   ├── menu/                DOM menu screens and modals of the game (WAD list, episodes, multiplayer, options and controls, pause and its multiplayer sub-menu, death, tally, save slots, pairing, lobby)
-    │   ├── net/                 Multiplayer of the game: pairing payload, lobby, main and sub sessions, device availability, the replicated turn state and commands with their binary codecs, the host's turn cycle and the replica applier
+    │   ├── menu/                DOM menu screens and modals of the game (WAD list, episodes, multiplayer, options and controls, pause and its multiplayer sub-menu, death, tally, save slots; pairing and lobby come from webapp/)
+    │   ├── net/                 Multiplayer of the game, over the session of webapp/net/: its protocol and invite (the WAD), its main and sub sessions, the replicated turn state and commands with their binary codecs, the replica applier
     │   ├── weapon/              Weapon machinery: psprite machine, hitscan, projectiles, effects, decals, and the drawable weapon and projectile views with their renderers
     │   └── wad/                 WAD reading + IndexedDB storage, game profiles (profile/), on-the-fly converter (convert/)
     └── engine/               Spipu3D — the game-agnostic 3D engine

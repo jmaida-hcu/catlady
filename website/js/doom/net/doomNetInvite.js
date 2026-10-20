@@ -1,7 +1,7 @@
 /**
- * The application payload of the pairing codes: the WAD identity, the mode,
- * the WAD's label and edition title from the main to a sub, the nickname from
- * the sub back to the main. A sub refuses an invite before any answer exists.
+ * The payload of the main's invite code: the WAD identity, the mode, the
+ * WAD's label and edition title. A sub refuses an invite before any answer
+ * exists; its answer carries its nickname (NetGameAnswer).
  */
 class DoomNetInvite {
     /**
@@ -33,32 +33,6 @@ class DoomNetInvite {
         DoomNetInvite._checkEnd(reader);
 
         return invite;
-    }
-
-    static encodeAnswer(nickname) {
-        return new NetByteWriter().ascii(nickname).toBytes();
-    }
-
-    static decodeAnswer(bytes) {
-        const reader   = new NetByteReader(bytes);
-        const nickname = reader.ascii();
-        DoomNetInvite._checkEnd(reader);
-
-        return nickname;
-    }
-
-    /**
-     * The answer to an invite, built by the sub once `accept` took it.
-     *
-     * @param {Uint8Array}       inviteBytes
-     * @param {function(object)} accept      - receives the decoded invite, throws to refuse it
-     * @param {string}           nickname
-     * @returns {Uint8Array}
-     */
-    static answerFor(inviteBytes, accept, nickname) {
-        accept(DoomNetInvite.decodeInvite(inviteBytes));
-
-        return DoomNetInvite.encodeAnswer(nickname);
     }
 
     static _checkEnd(reader) {

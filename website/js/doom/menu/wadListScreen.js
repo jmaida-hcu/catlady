@@ -11,10 +11,10 @@ class WadListScreen extends AbstractMenuScreen {
     constructor(navigator, display, registry) {
         super(navigator, display);
 
-        const links = new DoomNetLinks();
+        const links = new NetGameLinks();
 
         this._registry       = registry;
-        this._join           = new MenuJoinFlow(navigator, display, links, new DoomNetAvailability(links));
+        this._join           = new MenuJoinFlow(navigator, display, links, new NetGameAvailability(links, () => new Object3dRendererWebGL().isAvailable()));
         this._listEl         = null;
         this._urlInput       = null;
         this._fileInput      = null;

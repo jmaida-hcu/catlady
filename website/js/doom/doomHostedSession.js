@@ -14,8 +14,8 @@ class DoomHostedSession {
      */
     constructor(game) {
         this._game         = game;
-        this._links        = new DoomNetLinks();
-        this._availability = new DoomNetAvailability(this._links);
+        this._links        = new NetGameLinks();
+        this._availability = new NetGameAvailability(this._links, () => new Object3dRendererWebGL().isAvailable());
         this._session      = null;   // DoomNetMainSession while a session is open
         this._notice       = new DoomSessionNotice().setOnNotice((text) => game.getPresentation().setNotice(text));
         this._start        = null;   // {nickname, mode, onCancel} of a game started from the Multiplayer screen
@@ -218,7 +218,7 @@ class DoomHostedSession {
         }
         this._game.freeze();
         this._startDisplay = new AppMenuDisplay('screen').init(true);
-        this._startLobby   = new MenuLobbyModal(this._startDisplay).openMain(session, {
+        this._startLobby   = new AppMenuLobbyModal(this._startDisplay).openMain(session, {
             start: () => this._startFromLobby(),
             back:  () => this._backFromStartLobby()
         });

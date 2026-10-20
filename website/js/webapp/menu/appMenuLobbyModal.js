@@ -1,11 +1,11 @@
 /**
- * The lobby of a session: its players in slot order with their ping and, in
- * cooperative, the colour of their slot, updated live. The main adds a player
+ * The lobby of a game session: its players in slot order with their ping and,
+ * when the subs play, the colour of their slot, updated live. The main adds a player
  * (greyed out once the lobby is full), removes a sub by picking its line, and
  * starts from the bottom row, beside its back button; a sub only sees the
  * list — and that the game runs on the main — and can leave.
  */
-class MenuLobbyModal extends AppMenuAbstractListModal {
+class AppMenuLobbyModal extends AppMenuAbstractListModal {
     /**
      * @param {AppMenuDisplay} display
      */
@@ -24,7 +24,7 @@ class MenuLobbyModal extends AppMenuAbstractListModal {
     }
 
     /**
-     * @param {DoomNetMainSession} session
+     * @param {NetGameMainSession} session
      * @param {{start: function, back: function|null}} actions - without back, Back closes the lobby
      */
     openMain(session, actions) {
@@ -35,7 +35,7 @@ class MenuLobbyModal extends AppMenuAbstractListModal {
     }
 
     /**
-     * @param {DoomNetSubSession}  session
+     * @param {NetGameSubSession}  session
      * @param {{leave: function}} actions
      */
     openSub(session, actions) {
@@ -130,7 +130,7 @@ class MenuLobbyModal extends AppMenuAbstractListModal {
         const item = this._addSeatItem(seat, () => {});
         item.classList.add('app-menu-item-disabled');
         AppMenuDom.addText(item, 'app-menu-item-infos', appTranslator.get('multiplayer.lobby.disconnected'));
-        this._itemKeys.push(MenuLobbyModal.KEY_RESERVED + seat.slot);
+        this._itemKeys.push(AppMenuLobbyModal.KEY_RESERVED + seat.slot);
     }
 
     _addSeatItem(seat, action) {
@@ -148,20 +148,20 @@ class MenuLobbyModal extends AppMenuAbstractListModal {
         if (lobby.isFull()) {
             add.classList.add('app-menu-item-disabled');
         }
-        this._itemKeys.push(MenuLobbyModal.KEY_ADD);
+        this._itemKeys.push(AppMenuLobbyModal.KEY_ADD);
     }
 
     _addPlayerIfRoom() {
         if (this._session.getLobby().isFull()) {
-            doomSound.playUi('menu/invalid');
+            AppMenuSound.play(AppMenuSound.INVALID);
             return;
         }
-        new MenuPairingModal(this._display).openForMain(this._session);
+        new AppMenuPairingModal(this._display).openForMain(this._session);
     }
 
     // The main removes a sub by picking its line; nothing else reacts.
     _pickPlayer(player) {
-        if (!this._isMain || (player.id === DoomNetLobby.MAIN_ID)) {
+        if (!this._isMain || (player.id === NetLobby.MAIN_ID)) {
             return;
         }
         this._confirm(appTranslator.get('multiplayer.lobby.removeConfirm', {nickname: player.nickname}),
@@ -169,7 +169,7 @@ class MenuLobbyModal extends AppMenuAbstractListModal {
     }
 
     _pingText(player) {
-        if (player.id === DoomNetLobby.MAIN_ID) {
+        if (player.id === NetLobby.MAIN_ID) {
             return appTranslator.get('multiplayer.lobby.main');
         }
         if (player.away === true) {
@@ -184,5 +184,5 @@ class MenuLobbyModal extends AppMenuAbstractListModal {
     }
 }
 
-MenuLobbyModal.KEY_ADD      = 'add';
-MenuLobbyModal.KEY_RESERVED = 'reserved-';
+AppMenuLobbyModal.KEY_ADD      = 'add';
+AppMenuLobbyModal.KEY_RESERVED = 'reserved-';

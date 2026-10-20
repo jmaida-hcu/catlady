@@ -18,13 +18,13 @@
   },
   "bootstrap/js": {
     "versionValid": true,
-    "declared": 357,
+    "declared": 363,
     "missing": [],
     "duplicates": [],
     "undeclared": []
   },
   "bootstrap/webapp": {
-    "files": 50,
+    "files": 64,
     "undeclared": []
   }
 }

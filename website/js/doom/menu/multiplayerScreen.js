@@ -14,8 +14,8 @@ class MultiplayerScreen extends AbstractMenuScreen {
         super(navigator, display);
 
         this._wadMeta      = null;
-        this._links        = new DoomNetLinks();
-        this._availability = new DoomNetAvailability(this._links);
+        this._links        = new NetGameLinks();
+        this._availability = new NetGameAvailability(this._links, () => new Object3dRendererWebGL().isAvailable());
         this._join         = new MenuJoinFlow(navigator, display, this._links, this._availability);
     }
 
@@ -37,7 +37,7 @@ class MultiplayerScreen extends AbstractMenuScreen {
         this._addBackButton(panel);
         this._nav.selectFirst();
         for (const item of [coop, deathmatch, join]) {
-            MenuNetGate.greyWhenUnavailable(item, () => this._availability.unavailableReason());
+            AppMenuNetGate.greyWhenUnavailable(item, () => this._availability.unavailableReason());
         }
     }
 
@@ -52,7 +52,7 @@ class MultiplayerScreen extends AbstractMenuScreen {
 
     // Availability and nickname, then the WAD's identity, before a new game.
     _afterChecks(onReady) {
-        MenuNetGate.enter(this._display, () => this._availability.unavailableReason(), async (nickname) => {
+        AppMenuNetGate.enter(this._display, () => this._availability.unavailableReason(), doomSettings, async (nickname) => {
             if ((await this._navigator.ensureWadIdentity(this._wadMeta)) === null) {
                 MenuNetMessages.showNoIdentity(this._display);
                 return;

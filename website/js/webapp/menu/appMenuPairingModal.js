@@ -4,8 +4,9 @@
  * the player being connected to, and a cancel button. The session runs the
  * flow; this modal is its view, and turns every failure into an explicit
  * message — a link that cannot open says which network to put both devices on.
+ * A game adds the texts of its own refusals of an invite (registerError).
  */
-class MenuPairingModal extends MenuModal {
+class AppMenuPairingModal extends AppMenuModal {
     /**
      * @param {AppMenuDisplay} display
      */
@@ -20,14 +21,14 @@ class MenuPairingModal extends MenuModal {
         return this._open(appTranslator.get('multiplayer.lobby.add'), {
             show:       appTranslator.get('multiplayer.pairing.showToSub'),
             read:       appTranslator.get('multiplayer.pairing.readSub'),
-            connecting: (payload) => MenuPairingModal._connectingTo(payload)
+            connecting: (payload) => AppMenuPairingModal._connectingTo(payload)
         }, false, session, (view) => session.addPlayer(view), () => {});
     }
 
     /**
      * A sub answers the main: its code read, then the answer shown, one at a time.
      *
-     * @param {DoomNetSubSession} session
+     * @param {NetGameSubSession} session
      * @param {function}          onPaired - once the link to the main is open
      * @param {function}          onFailed - the pairing was cancelled or failed: the session is over
      */
@@ -49,18 +50,18 @@ class MenuPairingModal extends MenuModal {
      * @param {function}                     onFailed
      */
     _open(title, captions, sequential, session, pair, onPaired, onFailed = () => {}) {
-        const {modal}  = this._createShell(title, 'app-menu-modal app-menu-modal-wide doom-menu-modal-pairing', 'app-menu-subtitle');
-        const stage    = AppMenuDom.addElement(modal, 'div', 'doom-menu-pairing-stage'
-            + ((sequential) ? ' doom-menu-pairing-stage-sequential' : ''));
+        const {modal}  = this._createShell(title, 'app-menu-modal app-menu-modal-wide app-menu-modal-pairing', 'app-menu-subtitle');
+        const stage    = AppMenuDom.addElement(modal, 'div', 'app-menu-pairing-stage'
+            + ((sequential) ? ' app-menu-pairing-stage-sequential' : ''));
         const elements = {
-            qr:            MenuPairingModal._tile(stage, 'div', 'doom-menu-pairing-qr'),
-            camera:        MenuPairingModal._tile(stage, 'video', 'doom-menu-pairing-camera'),
+            qr:            AppMenuPairingModal._tile(stage, 'div', 'app-menu-pairing-qr'),
+            camera:        AppMenuPairingModal._tile(stage, 'video', 'app-menu-pairing-camera'),
             qrCaption:     null,
             cameraCaption: null,
-            status:        AppMenuDom.addElement(stage, 'div', 'doom-menu-pairing-status')
+            status:        AppMenuDom.addElement(stage, 'div', 'app-menu-pairing-status')
         };
-        elements.qrCaption     = AppMenuDom.addElement(elements.qr.parentElement, 'div', 'doom-menu-pairing-caption');
-        elements.cameraCaption = AppMenuDom.addElement(elements.camera.parentElement, 'div', 'doom-menu-pairing-caption');
+        elements.qrCaption     = AppMenuDom.addElement(elements.qr.parentElement, 'div', 'app-menu-pairing-caption');
+        elements.cameraCaption = AppMenuDom.addElement(elements.camera.parentElement, 'div', 'app-menu-pairing-caption');
         elements.camera.muted       = true;
         elements.camera.playsInline = true;
 
@@ -79,7 +80,7 @@ class MenuPairingModal extends MenuModal {
     // A cancel simply closes the modal; any other failure explains itself.
     async _run(pair, onPaired, onFailed) {
         try {
-            await QrModule.prepare(appBootstrap.buildUrl(MenuPairingModal.WASM_URL));
+            await QrModule.prepare(appBootstrap.buildUrl(AppMenuPairingModal.WASM_URL));
             await pair(this._view);
         } catch (error) {
             this.close();
@@ -95,71 +96,85 @@ class MenuPairingModal extends MenuModal {
         if ((error instanceof NetError) && (error.getCode() === NetError.CANCELLED)) {
             return;
         }
-        const code = MenuPairingModal._errorCode(error);
-        // A refusal the player can act on (another WAD, another version) is no bug.
-        if (code === MenuPairingModal.ERROR_DEFAULT) {
+        const code = AppMenuPairingModal._errorCode(error);
+        // A refusal the player can act on (another version, the game's own) is no bug.
+        if (code === AppMenuPairingModal.ERROR_DEFAULT) {
             console.error(error);
         }
-        doomSound.playUi('menu/invalid');
-        new MenuModal(this._display).info(MenuPairingModal._message(code, error));
+        AppMenuSound.play(AppMenuSound.INVALID);
+        new AppMenuModal(this._display).info(AppMenuPairingModal._message(code, error));
     }
 
-    // A WAD refusal names the main's WAD, on one line.
-    static _message(code, error) {
-        const wad = (((error instanceof NetError) && MenuPairingModal.WAD_CODES.includes(error.getCode())) ? (error.getDetail() ?? '') : '');
+    /**
+     * @param {string}      errorCode - a NetError code the game raises to refuse an invite
+     * @param {string}      textCode  - the text that explains it
+     * @param {string|null} parameter - the text's parameter that receives the error's detail, null for none
+     */
+    static registerError(errorCode, textCode, parameter = null) {
+        AppMenuPairingModal.ERROR_CODES[errorCode] = textCode;
+        if (parameter !== null) {
+            AppMenuPairingModal.DETAIL_PARAMETERS[errorCode] = parameter;
+        }
+    }
 
-        return appTranslator.get(code, {wad: wad.replace(/ /g, MenuPairingModal.NO_BREAK_SPACE)});
+    // A refusal that names something (the game's own) names it on one line.
+    static _message(code, error) {
+        const parameter = ((error instanceof NetError) ? (AppMenuPairingModal.DETAIL_PARAMETERS[error.getCode()] ?? null) : null);
+        if (parameter === null) {
+            return appTranslator.get(code);
+        }
+
+        return appTranslator.get(code, {[parameter]: (error.getDetail() ?? '').replace(/ /g, AppMenuPairingModal.NO_BREAK_SPACE)});
     }
 
     // The sub's answer names it; a payload that does not decode leaves the line nameless.
     static _connectingTo(payload) {
         try {
-            return appTranslator.get('multiplayer.pairing.connectingTo', {nickname: DoomNetInvite.decodeAnswer(payload)});
+            return appTranslator.get('multiplayer.pairing.connectingTo', {nickname: NetGameAnswer.decode(payload)});
         } catch (error) {
             return appTranslator.get('multiplayer.pairing.connecting');
         }
     }
 
     static _errorCode(error) {
-        if ((error instanceof NetError) && MenuPairingModal.NETWORK_CODES.includes(error.getCode())) {
-            return (MenuPairingModal.NETWORK_MESSAGES[error.getDetail()] ?? MenuPairingModal.NETWORK_DEFAULT);
+        if ((error instanceof NetError) && AppMenuPairingModal.NETWORK_CODES.includes(error.getCode())) {
+            return (AppMenuPairingModal.NETWORK_MESSAGES[error.getDetail()] ?? AppMenuPairingModal.NETWORK_DEFAULT);
         }
         if (error instanceof NetError) {
-            return (MenuPairingModal.ERROR_CODES[error.getCode()] ?? MenuPairingModal.ERROR_DEFAULT);
+            return (AppMenuPairingModal.ERROR_CODES[error.getCode()] ?? AppMenuPairingModal.ERROR_DEFAULT);
         }
-        if ((error instanceof DOMException) && MenuPairingModal.CAMERA_ERRORS.includes(error.name)) {
+        if ((error instanceof DOMException) && AppMenuPairingModal.CAMERA_ERRORS.includes(error.name)) {
             return 'multiplayer.error.camera';
         }
 
-        return MenuPairingModal.ERROR_DEFAULT;
+        return AppMenuPairingModal.ERROR_DEFAULT;
     }
 
     // The element of a tile of the stage, its caption added under it by the caller.
     static _tile(stage, tagName, className) {
-        const tile = AppMenuDom.addElement(stage, 'div', 'doom-menu-pairing-tile');
+        const tile = AppMenuDom.addElement(stage, 'div', 'app-menu-pairing-tile');
 
-        return AppMenuDom.addElement(tile, tagName, 'doom-menu-pairing-frame ' + className);
+        return AppMenuDom.addElement(tile, tagName, 'app-menu-pairing-frame ' + className);
     }
 }
 
-MenuPairingModal.WASM_URL       = '/lib/zxing-wasm/zxing_full.wasm';
-MenuPairingModal.NO_BREAK_SPACE = '\u00A0';
-MenuPairingModal.ERROR_DEFAULT  = 'multiplayer.error.pairing';
-MenuPairingModal.ERROR_CODES    = {
-    [NetError.VERSION_MISMATCH]:     'multiplayer.error.version',
-    [DoomNetWadMatch.MISSING]:       'multiplayer.error.wadMissing',
-    [DoomNetWadMatch.OTHER_VERSION]: 'multiplayer.error.wadVersion',
-    [NetError.INVITE_USED]:          'multiplayer.error.invite',
-    [NetError.UNKNOWN_INVITE]:       'multiplayer.error.invite'
+AppMenuPairingModal.WASM_URL       = '/lib/zxing-wasm/zxing_full.wasm';
+AppMenuPairingModal.NO_BREAK_SPACE = '\u00A0';
+AppMenuPairingModal.ERROR_DEFAULT  = 'multiplayer.error.pairing';
+AppMenuPairingModal.ERROR_CODES    = {
+    [NetError.VERSION_MISMATCH]: 'multiplayer.error.version',
+    [NetError.INVITE_USED]:      'multiplayer.error.invite',
+    [NetError.UNKNOWN_INVITE]:   'multiplayer.error.invite'
 };
-MenuPairingModal.WAD_CODES      = [DoomNetWadMatch.MISSING, DoomNetWadMatch.OTHER_VERSION];
+// The error codes whose detail the text names, by the text's parameter.
+AppMenuPairingModal.DETAIL_PARAMETERS = {};
 // A link that could not open: the message follows the network verdict carried by the error.
-MenuPairingModal.NETWORK_CODES    = [NetError.LINK_LOST, NetError.CONNECT_TIMEOUT, NetError.UNREACHABLE];
-MenuPairingModal.NETWORK_DEFAULT  = 'multiplayer.error.connect';
-MenuPairingModal.NETWORK_MESSAGES = {
+AppMenuPairingModal.NETWORK_CODES    = [NetError.LINK_LOST, NetError.CONNECT_TIMEOUT, NetError.UNREACHABLE];
+AppMenuPairingModal.NETWORK_DEFAULT  = 'multiplayer.error.connect';
+AppMenuPairingModal.NETWORK_MESSAGES = {
     [NetReachability.SAME_NETWORK]: 'multiplayer.error.sameNetwork',
     [NetReachability.INTERNET]:     'multiplayer.error.otherNetwork',
     [NetReachability.UNREACHABLE]:  'multiplayer.error.otherNetwork'
 };
 // The camera refused, missing or busy (getUserMedia).
-MenuPairingModal.CAMERA_ERRORS = ['NotAllowedError', 'NotFoundError', 'NotReadableError', 'OverconstrainedError'];
+AppMenuPairingModal.CAMERA_ERRORS = ['NotAllowedError', 'NotFoundError', 'NotReadableError', 'OverconstrainedError'];

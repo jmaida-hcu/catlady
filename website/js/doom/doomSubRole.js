@@ -184,7 +184,7 @@ class DoomSubRole extends AbstractGameRole {
         onPlayersMoved();
         this._notice.update(now);
         if ((this._lastStateAt === null) || this._notice.isMainPaused() || this._levelOver || this._notice.isWaiting()
-            || ((now - this._lastStateAt) <= DoomNetTurnCycle.WAITING_NOTICE_MS)) {
+            || ((now - this._lastStateAt) <= NetTurnCycle.WAITING_NOTICE_MS)) {
             return;
         }
         this._notice.setWaiting([this._session.getHostNickname()]);

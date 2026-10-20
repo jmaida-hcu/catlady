@@ -447,96 +447,16 @@
 }
 
 
-/* --- Pairing (multiplayer): the code shown and the camera reading the other side's --- */
-.doom-menu-modal-pairing {
-    width: 88%;
-}
-
-.doom-menu-pairing-stage {
-    display: flex;
-    gap: 1em;
-    margin-bottom: 1em;
-}
-
-.doom-menu-pairing-tile {
-    flex: 1 1 0;
-    min-width: 0;
-}
-
-/* Square, capped by the height of the 1080 screen (36em) less the modal chrome. */
-.doom-menu-pairing-frame {
-    display: block;
-    width: 100%;
-    max-width: 18em;
-    margin: 0 auto;
-    aspect-ratio: 1;
-    visibility: hidden;
-    cursor: zoom-in;
-}
-
-.doom-menu-pairing-frame.shown {
-    visibility: visible;
-}
-
-/* A sub reads, then shows: the idle frame's tile steps aside, the other one is centred. */
-.doom-menu-pairing-stage-sequential .doom-menu-pairing-tile:not(:has(> .shown)) {
-    display: none;
-}
-
-.doom-menu-pairing-frame.zoomed {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    aspect-ratio: auto;
-    z-index: 10;
-    cursor: zoom-out;
-}
-
+/* --- Pairing (AppMenuPairingModal): theme of its frames and captions --- */
 /* The code draws its own white square, quiet zone included: around it, fullscreen stays dark. */
-.doom-menu-pairing-qr {
+.app-menu-pairing-qr,
+.app-menu-pairing-camera {
     background: #000;
 }
 
-.doom-menu-pairing-qr svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.doom-menu-pairing-camera {
-    object-fit: cover;
-    background: #000;
-}
-
-.doom-menu-pairing-camera.zoomed {
-    object-fit: contain;
-}
-
-.doom-menu-pairing-caption {
-    min-height: 1.4em;
-    margin-top: 0.4em;
+.app-menu-pairing-caption,
+.app-menu-pairing-status {
     color: rgba(255, 255, 255, 0.85);
-    font-size: 0.8em;
-    text-align: center;
-}
-
-/* The codes are exchanged: the link being opened replaces both tiles. */
-.doom-menu-pairing-status {
-    flex: 1 1 0;
-    align-self: center;
-    padding: 3em 0;
-    color: rgba(255, 255, 255, 0.85);
-    text-align: center;
-}
-
-.doom-menu-pairing-status:empty {
-    display: none;
-}
-
-.doom-menu-pairing-stage:has(> .doom-menu-pairing-status:not(:empty)) .doom-menu-pairing-tile {
-    display: none;
 }
 
 /* --- Message over the running game (a turn waiting for a player) --- */

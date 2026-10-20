@@ -2,14 +2,15 @@
  * The players of a session as the lobby lists them, in slot order: id,
  * nickname, ping, whether its page is away, and the slot each one keeps for
  * the whole session — the lowest free one when it joins, so a player's slot
- * never moves when someone above it leaves. A player lost against its will
- * leaves a seat reserved in its slot, which only a newcomer of the same
- * nickname takes back, any other only once no slot is free. Held by the main,
- * mirrored on every sub from the lobby messages.
+ * never moves when someone above it leaves. A player the session keeps a seat
+ * for (lost against its will, in a game that holds seats) leaves it reserved
+ * in its slot, which only a newcomer of the same nickname takes back, any
+ * other only once no slot is free. Held by the main, mirrored on every sub
+ * from the lobby messages.
  */
-class DoomNetLobby {
+class NetLobby {
     /**
-     * @param {int} capacity - main included (the profile's maxPlayers)
+     * @param {int} capacity - players, main included
      */
     constructor(capacity) {
         this._capacity = capacity;
@@ -34,9 +35,9 @@ class DoomNetLobby {
         return ((this._colors !== null) ? (this._colors[slot - 1] ?? null) : null);
     }
 
-    // The main holds slot 1 and player id MAIN_ID.
+    // The main holds slot MAIN_SLOT and id MAIN_ID.
     addMain(nickname) {
-        return this.addPlayer(DoomNetLobby.MAIN_ID, nickname);
+        return this.addPlayer(NetLobby.MAIN_ID, nickname);
     }
 
     /**
@@ -195,4 +196,6 @@ class DoomNetLobby {
     }
 }
 
-DoomNetLobby.MAIN_ID = 0;
+NetLobby.MAIN_ID   = 0;
+// The main's slot, the player id of the main's player.
+NetLobby.MAIN_SLOT = 1;
