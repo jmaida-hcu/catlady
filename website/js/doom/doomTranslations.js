@@ -689,18 +689,6 @@ class DoomTranslations {
                 es: 'Continuar'
             },
 
-            'hud.health': {
-                fr: 'PV',
-                en: 'HP',
-                it: 'PV',
-                es: 'PV'
-            },
-            'hud.armor': {
-                fr: 'AR',
-                en: 'AR',
-                it: 'AR',
-                es: 'AR'
-            },
             'hud.ammo': {
                 fr: 'MUNITIONS',
                 en: 'AMMO',

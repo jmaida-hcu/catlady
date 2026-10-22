@@ -1,7 +1,7 @@
 /**
  * Graphical game HUD, a DOM/CSS overlay of our own (no WAD lumps) laid out in
  * the screen corners over the letterboxed display:
- *   - bottom-left : running power-ups, health and armor bars
+ *   - bottom-left : running power-ups, health (heart) and armor (shield) bars
  *   - bottom-right: ammo of the active weapon ('—' if none)
  *   - top-left    : key pips (lit when owned), secret and kill counts — or,
  *                   when the rules score the frags, the match clock and every
@@ -112,16 +112,15 @@ class HudGameBar extends AbstractHud {
 
         const energy    = user.getEnergy();
         const maxEnergy = user.getMaxEnergy();
-        this._els.healthFill.style.width = this._ratioPct(energy, maxEnergy);
-        this._els.healthValue.innerText  = String(Math.ceil(energy));
+        const lowHealth = (energy < (maxEnergy * HudGameBar.HEALTH_LOW_RATIO));
+        this._els.healthFill.style.width           = this._ratioPct(energy, maxEnergy);
+        this._els.healthFill.style.backgroundColor = ((lowHealth) ? HudGameBar.HEALTH_LOW_COLOR : HudGameBar.HEALTH_COLOR);
+        this._els.healthValue.innerText            = String(Math.ceil(energy));
 
-        // Armor — value + bar coloured by the armour tier (green ⅓, blue ½)
-        const armor      = user.getArmor();
-        const maxArmor   = user.getMaxArmor();
-        const armorColor = ((user.getArmorAbsorb() >= 0.5) ? '#4d9fff' : '#5dd35d');
-        this._els.armorFill.style.width           = this._ratioPct(armor, maxArmor);
-        this._els.armorFill.style.backgroundColor = armorColor;
-        this._els.armorValue.innerText            = String(Math.ceil(armor));
+        const armor    = user.getArmor();
+        const maxArmor = user.getMaxArmor();
+        this._els.armorFill.style.width = this._ratioPct(armor, maxArmor);
+        this._els.armorValue.innerText  = String(Math.ceil(armor));
 
         this._updateAmmo(user);
         this._updateArms(user);
@@ -221,15 +220,17 @@ class HudGameBar extends AbstractHud {
         const scoresFrags = ((this._rules !== null) && this._rules.scoresFrags());
         const keysShown   = ((this._rules === null) || !this._rules.givesAllKeys());
         this._els.keysRow.style.display = ((keysShown) ? 'flex' : 'none');
-        this._els.scores.style.display  = ((scoresFrags) ? 'none' : 'block');
+        this._els.scores.style.display  = ((scoresFrags) ? 'none' : 'grid');
         this._els.frags.style.display   = ((scoresFrags) ? 'block' : 'none');
         if (scoresFrags) {
             this._updateMatchClock();
             this._updateFragRows(user.getPlayerId());
             return;
         }
-        this._els.secretsValue.innerText = this._stats.getSecretsFound() + '/' + this._stats.getSecretsTotal();
-        this._els.killsValue.innerText   = this._stats.getKillsCount() + '/' + this._stats.getKillsTotal();
+        this._els.secretsFound.innerText = String(this._stats.getSecretsFound());
+        this._els.secretsTotal.innerText = String(this._stats.getSecretsTotal());
+        this._els.killsFound.innerText   = String(this._stats.getKillsCount());
+        this._els.killsTotal.innerText   = String(this._stats.getKillsTotal());
     }
 
     // Counting down to the time limit when the rules set one, up otherwise.
@@ -293,12 +294,12 @@ class HudGameBar extends AbstractHud {
         }
         block.appendChild(this._els.effects);
 
-        const health = this._buildBarRow(appTranslator.get('hud.health'), '#5dd35d');
+        const health = this._buildBarRow('heart', HudGameBar.HEART_COLOR, HudGameBar.HEALTH_COLOR);
         this._els.healthFill  = health.fill;
         this._els.healthValue = health.value;
         block.appendChild(health.row);
 
-        const armor = this._buildBarRow(appTranslator.get('hud.armor'), '#5dd35d');
+        const armor = this._buildBarRow('shield', HudGameBar.ARMOR_COLOR, HudGameBar.ARMOR_COLOR);
         this._els.armorFill  = armor.fill;
         this._els.armorValue = armor.value;
         block.appendChild(armor.row);
@@ -306,15 +307,15 @@ class HudGameBar extends AbstractHud {
         this._root.appendChild(block);
     }
 
-    _buildBarRow(label, color) {
+    _buildBarRow(icon, iconColor, color) {
         const row = this._createEl('div', {
             display: 'flex', alignItems: 'center', gap: '0.5em', marginBottom: '0.25em'
         });
 
-        const labelEl = this._createEl('div', {
-            width: '1.6em', fontSize: '0.8em', fontWeight: '700', color: '#ccc'
+        const iconEl = this._createEl('div', {
+            width: '1.1em', height: '1.1em', color: iconColor
         });
-        labelEl.innerText = label;
+        iconEl.innerHTML = this._iconSvg(icon);
 
         const track = this._createEl('div', {
             width: '8em', height: '0.9em', borderRadius: '0.45em',
@@ -329,7 +330,7 @@ class HudGameBar extends AbstractHud {
             minWidth: '2.2em', fontSize: '1.1em', fontWeight: '700', textAlign: 'right'
         });
 
-        row.appendChild(labelEl);
+        row.appendChild(iconEl);
         row.appendChild(track);
         row.appendChild(value);
 
@@ -366,36 +367,44 @@ class HudGameBar extends AbstractHud {
         this._els.keysRow = keysRow;
         block.appendChild(keysRow);
 
-        const scores = this._createEl('div', {});
+        // One grid for both counts: icons in their own column, found counts
+        // right-aligned against the slash, totals left-aligned after it.
+        const scores = this._createEl('div', {
+            display: 'grid', gridTemplateColumns: 'auto auto auto auto', justifyContent: 'start', alignItems: 'center',
+            rowGap: '0.35em', marginTop: '0.5em', fontSize: '0.9em', fontWeight: '700', color: '#eee'
+        });
         this._els.scores = scores;
         block.appendChild(scores);
 
-        const secrets = this._createEl('div', {
-            display: 'flex', alignItems: 'center', gap: '0.35em',
-            marginTop: '0.5em', fontSize: '0.9em', fontWeight: '700'
-        });
-        const icon = this._createEl('div', { color: '#ffd23d', lineHeight: '1' });
-        icon.innerText = '★';
-        this._els.secretsValue = this._createEl('div', { color: '#eee' });
-        this._els.secretsValue.innerText = '0/0';
-        secrets.appendChild(icon);
-        secrets.appendChild(this._els.secretsValue);
-        scores.appendChild(secrets);
+        const secrets = this._buildScoreRow(scores, 'star', '#ffd23d');
+        this._els.secretsFound = secrets.found;
+        this._els.secretsTotal = secrets.total;
 
-        const kills = this._createEl('div', {
-            display: 'flex', alignItems: 'center', gap: '0.35em',
-            marginTop: '0.35em', fontSize: '0.9em', fontWeight: '700'
-        });
-        const skull = this._createEl('div', { color: '#e05f5f', lineHeight: '1' });
-        skull.innerText = '☠';
-        this._els.killsValue = this._createEl('div', { color: '#eee' });
-        this._els.killsValue.innerText = '0/0';
-        kills.appendChild(skull);
-        kills.appendChild(this._els.killsValue);
-        scores.appendChild(kills);
+        const kills = this._buildScoreRow(scores, 'skull', '#e05f5f');
+        this._els.killsFound = kills.found;
+        this._els.killsTotal = kills.total;
 
         block.appendChild(this._buildFrags());
         this._root.appendChild(block);
+    }
+
+    _buildScoreRow(grid, iconName, color) {
+        const icon = this._createEl('div', {
+            width: '1em', height: '1em', color: color, marginRight: '0.35em', justifySelf: 'center'
+        });
+        icon.innerHTML = this._iconSvg(iconName);
+        const found = this._createEl('div', {textAlign: 'right'});
+        found.innerText = '0';
+        const slash = this._createEl('div', {});
+        slash.innerText = '/';
+        const total = this._createEl('div', {textAlign: 'left'});
+        total.innerText = '0';
+        grid.appendChild(icon);
+        grid.appendChild(found);
+        grid.appendChild(slash);
+        grid.appendChild(total);
+
+        return {found: found, total: total};
     }
 
     // ST_drawWidgets in deathmatch: the match clock, then the players' rows,
@@ -453,6 +462,13 @@ class HudGameBar extends AbstractHud {
 
     // --- Helpers ---
 
+    // Drawn, never a font glyph: a font without a text glyph for an emoji
+    // renders it in colour (iOS), and glyph metrics differ per platform.
+    _iconSvg(name) {
+        return '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor" aria-hidden="true">'
+            + HudGameBar.ICONS[name] + '</svg>';
+    }
+
     _cornerStyle(anchors) {
         const style = {
             position: 'absolute',
@@ -485,3 +501,21 @@ HudGameBar.EFFECT_LINES = [
     {code: 'invisibility',    labelCode: 'effect.invisibility',    timed: true},
     {code: 'berserk',         labelCode: 'effect.berserk',         timed: false}
 ];
+
+HudGameBar.HEALTH_COLOR     = '#5dd35d';
+HudGameBar.HEALTH_LOW_COLOR = '#e05f5f';
+HudGameBar.HEALTH_LOW_RATIO = 0.25;
+HudGameBar.HEART_COLOR      = '#e53935';
+HudGameBar.ARMOR_COLOR      = '#4d9fff';
+
+HudGameBar.ICONS = {
+    heart:  '<path d="M12 21 C11.4 20.5 3 14.4 3 8.6 C3 5.6 5.3 3.4 8.1 3.4 C9.8 3.4 11.2 4.3 12 5.6'
+          + ' C12.8 4.3 14.2 3.4 15.9 3.4 C18.7 3.4 21 5.6 21 8.6 C21 14.4 12.6 20.5 12 21 Z"/>',
+    shield: '<path d="M12 2.2 L20 5.2 V11.2 C20 16.1 16.6 20 12 21.8 C7.4 20 4 16.1 4 11.2 V5.2 Z"/>',
+    star:   '<path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z"/>',
+    // evenodd: the eyes and the nose are holes cut out of the skull.
+    skull:  '<path fill-rule="evenodd" d="M12 2 C6.8 2 3.2 5.6 3.2 10.3 C3.2 13.2 4.6 15.4 6.8 16.6 V20.2'
+          + ' C6.8 21.2 7.6 22 8.6 22 H15.4 C16.4 22 17.2 21.2 17.2 20.2 V16.6 C19.4 15.4 20.8 13.2 20.8 10.3'
+          + ' C20.8 5.6 17.2 2 12 2 Z M8.6 9.2 A2.2 2.2 0 1 0 8.6 13.6 A2.2 2.2 0 1 0 8.6 9.2 Z'
+          + ' M15.4 9.2 A2.2 2.2 0 1 0 15.4 13.6 A2.2 2.2 0 1 0 15.4 9.2 Z M12 14.2 L10.6 17 H13.4 Z"/>'
+};
