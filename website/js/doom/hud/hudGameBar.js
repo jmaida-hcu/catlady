@@ -119,6 +119,7 @@ class HudGameBar extends AbstractHud {
 
         const armor    = user.getArmor();
         const maxArmor = user.getMaxArmor();
+        this._els.armorIcon.style.color = ((armor > 0) ? HudGameBar.ARMOR_COLOR : HudGameBar.ARMOR_EMPTY_COLOR);
         this._els.armorFill.style.width = this._ratioPct(armor, maxArmor);
         this._els.armorValue.innerText  = String(Math.ceil(armor));
 
@@ -300,6 +301,7 @@ class HudGameBar extends AbstractHud {
         block.appendChild(health.row);
 
         const armor = this._buildBarRow('shield', HudGameBar.ARMOR_COLOR, HudGameBar.ARMOR_COLOR);
+        this._els.armorIcon  = armor.icon;
         this._els.armorFill  = armor.fill;
         this._els.armorValue = armor.value;
         block.appendChild(armor.row);
@@ -337,7 +339,7 @@ class HudGameBar extends AbstractHud {
         row.appendChild(track);
         row.appendChild(value);
 
-        return { row, fill, value };
+        return { row, icon: iconEl, fill, value };
     }
 
     _buildAmmo() {
@@ -505,12 +507,13 @@ HudGameBar.EFFECT_LINES = [
     {code: 'berserk',         labelCode: 'effect.berserk',         timed: false}
 ];
 
-HudGameBar.HEALTH_COLOR     = '#5dd35d';
-HudGameBar.HEALTH_LOW_COLOR = '#e05f5f';
-HudGameBar.HEALTH_LOW_RATIO = 0.25;
-HudGameBar.BAR_SMOOTHING_S  = 0.25;
-HudGameBar.HEART_COLOR      = '#e53935';
-HudGameBar.ARMOR_COLOR      = '#4d9fff';
+HudGameBar.HEALTH_COLOR      = '#5dd35d';
+HudGameBar.HEALTH_LOW_COLOR  = '#e05f5f';
+HudGameBar.HEALTH_LOW_RATIO  = 0.25;
+HudGameBar.BAR_SMOOTHING_S   = 0.25;
+HudGameBar.HEART_COLOR       = '#e53935';
+HudGameBar.ARMOR_COLOR       = '#4d9fff';
+HudGameBar.ARMOR_EMPTY_COLOR = '#6e6e6e';
 
 HudGameBar.ICONS = {
     heart:  '<path d="M12 21 C11.4 20.5 3 14.4 3 8.6 C3 5.6 5.3 3.4 8.1 3.4 C9.8 3.4 11.2 4.3 12 5.6'
