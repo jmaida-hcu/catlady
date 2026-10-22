@@ -22,6 +22,7 @@ class DoomSimulation {
         this._itemCatalog = null;
         this._itemRules   = null;
         this._skillTable  = null;
+        this._slotWeapons = [];
         this._world       = null;
         this._level       = null;   // the DoomBuiltLevel it adopted
         this._stats       = new DoomLevelStats();
@@ -56,6 +57,7 @@ class DoomSimulation {
         this._itemCatalog    = itemCatalog;
         this._itemRules      = new DoomItemRules(profile, itemCatalog, this._roster, this._events).useRules(this._rules);
         this._skillTable     = profile.skillRules();
+        this._slotWeapons    = DoomSimulation._slotWeapons(profile);
         this._itemRules.setAmmoFactor(this._skillRule().ammoFactor);
 
         return this;
@@ -503,13 +505,18 @@ class DoomSimulation {
         for (let n = 0; n < Math.abs(wheel); n++) {
             weapon.cycleWeapon(((wheel > 0) ? 1 : -1));
         }
-        const slotOf = this._profile.hudWeaponSlots().byWeapon;
         DoomSimulation.WEAPON_SLOT_BUTTONS.forEach((button, i) => {
-            const slot = (i + 1);
             if (command.isJustPressed(button, previous)) {
-                weapon.cycleWithin(Object.keys(slotOf).filter((code) => (slotOf[code] === slot)));
+                weapon.cycleWithin(this._slotWeapons[i]);
             }
         });
+    }
+
+    // The weapon codes of each slot, in the profile's order; index 0 = slot 1.
+    static _slotWeapons(profile) {
+        const slotOf = profile.weaponSlots().byWeapon;
+
+        return DoomSimulation.WEAPON_SLOT_BUTTONS.map((button, i) => Object.keys(slotOf).filter((code) => (slotOf[code] === (i + 1))));
     }
 
     _updateWeapon(player, dt, command) {

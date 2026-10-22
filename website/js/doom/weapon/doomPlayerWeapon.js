@@ -136,8 +136,6 @@ class DoomPlayerWeapon {
         this.requestWeapon(owned[(i + dir + owned.length) % owned.length]);
     }
 
-    // A slot key: the owned weapon after the one already chosen in the slot,
-    // looping, or the slot's first owned one.
     cycleWithin(codes) {
         const owned = codes.filter((code) => this._user.hasWeapon(code));
         if (owned.length === 0) {

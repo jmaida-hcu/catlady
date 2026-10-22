@@ -961,7 +961,7 @@ class DefaultGameProfile extends AbstractGameProfile {
         };
     }
 
-    hudWeaponSlots() {
+    weaponSlots() {
         return {
             count: 7,
             // Slot 1 (the fist) is always lit; the chainsaw is its upgrade.

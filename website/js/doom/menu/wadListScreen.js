@@ -239,7 +239,7 @@ class WadListScreen extends AbstractMenuScreen {
         });
     }
 
-    // --- Messages: progress without a button, a final one with Close ---
+    // --- Messages ---
 
     _showProgress(message) {
         this._closeProgress();

@@ -395,13 +395,14 @@ class AbstractGameProfile {
     }
 
     /**
-     * ARMS panel layout: number of slots, weapon → slot mapping, the
-     * always-lit slot and its upgrade weapon (accent border when owned).
+     * Weapon slots, read by the HUD ARMS panel and the slot keys: number of
+     * slots, weapon → slot mapping, the always-lit slot and its upgrade
+     * weapon (accent border when owned).
      *
      * @returns {{count: number, byWeapon: object, alwaysOwnedSlot: number, upgradeWeapon: string}}
      */
-    hudWeaponSlots() {
-        this._generateException('hudWeaponSlots must be implemented');
+    weaponSlots() {
+        this._generateException('weaponSlots must be implemented');
         return {};
     }
 

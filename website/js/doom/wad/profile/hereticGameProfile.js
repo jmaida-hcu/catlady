@@ -1206,7 +1206,7 @@ class HereticGameProfile extends DefaultGameProfile {
         };
     }
 
-    hudWeaponSlots() {
+    weaponSlots() {
         return {
             count: 7,
             // Slot 1 (the staff) is always lit; the gauntlets are its upgrade.

@@ -155,7 +155,7 @@ class HudGameBar extends AbstractHud {
     }
 
     _updateArms(user) {
-        const slots        = this._profile.hudWeaponSlots();
+        const slots        = this._profile.weaponSlots();
         const slotByWeapon = slots.byWeapon;
         const code         = user.getActiveWeapon();
         const activeSlot   = (slotByWeapon[code] ?? null);
@@ -372,8 +372,6 @@ class HudGameBar extends AbstractHud {
         this._els.keysRow = keysRow;
         block.appendChild(keysRow);
 
-        // One grid for both counts: icons in their own column, found counts
-        // right-aligned against the slash, totals left-aligned after it.
         const scores = this._createEl('div', {
             display: 'grid', gridTemplateColumns: 'auto auto auto auto', justifyContent: 'start', alignItems: 'center',
             rowGap: '0.35em', marginTop: '0.5em', fontSize: '0.9em', fontWeight: '700', color: '#eee'
@@ -445,7 +443,7 @@ class HudGameBar extends AbstractHud {
         block.style.textAlign = 'right';
 
         const panel = this._createEl('div', { display: 'flex', gap: '0.3em', justifyContent: 'flex-end' });
-        for (let slot = 1; slot <= this._profile.hudWeaponSlots().count; slot++) {
+        for (let slot = 1; slot <= this._profile.weaponSlots().count; slot++) {
             const el = this._createEl('div', {
                 width: '1.3em', height: '1.3em', borderRadius: '0.2em',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
