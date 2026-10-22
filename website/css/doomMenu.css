@@ -125,7 +125,6 @@
     flex-shrink: 0;
     display: flex;
     gap: 0.5em;
-    margin-bottom: 0.6em;
 }
 
 .doom-menu-input {

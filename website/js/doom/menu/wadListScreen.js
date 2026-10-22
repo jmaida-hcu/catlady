@@ -20,6 +20,7 @@ class WadListScreen extends AbstractMenuScreen {
         this._fileInput      = null;
         this._formButtons    = [];
         this._languageButton = null;
+        this._progress       = null;
     }
 
     _build() {
@@ -49,8 +50,6 @@ class WadListScreen extends AbstractMenuScreen {
         ]);
 
         this._buildAddForm(panel);
-
-        this._addStatus(panel);
 
         this._refresh();
     }
@@ -150,13 +149,13 @@ class WadListScreen extends AbstractMenuScreen {
     async _onAddUrl() {
         const url = WadRegistry.normalizeUrl(this._urlInput.value);
         if (url === '') {
-            this._setError(appTranslator.get('menu.wad.urlMissing'));
+            this._showNotice(appTranslator.get('menu.wad.urlMissing'), true);
             return;
         }
         this._urlInput.value = url;
 
         this._setBusy(true);
-        this._setStatus(appTranslator.get('menu.wad.downloading'));
+        this._showProgress(appTranslator.get('menu.wad.downloading'));
         try {
             const wadImport = await this._registry.addFromUrl(url);
             this._urlInput.value = '';
@@ -174,7 +173,7 @@ class WadListScreen extends AbstractMenuScreen {
         }
 
         this._setBusy(true);
-        this._setStatus(appTranslator.get('menu.wad.reading'));
+        this._showProgress(appTranslator.get('menu.wad.reading'));
         try {
             await this._offerImport(await this._registry.addFromFile(file));
         } catch (error) {
@@ -189,10 +188,10 @@ class WadListScreen extends AbstractMenuScreen {
             await this._applyImport(wadImport);
             return;
         }
-        this._clearStatus();
+        this._closeProgress();
         this._confirm(WadListScreen._updateMessage(wadImport), async () => {
             this._setBusy(true);
-            this._setStatus(appTranslator.get('menu.wad.updating', {wad: WadRegistry.displayTitle(wadImport.meta)}));
+            this._showProgress(appTranslator.get('menu.wad.updating', {wad: WadRegistry.displayTitle(wadImport.meta)}));
             try {
                 await this._applyImport(wadImport);
             } catch (error) {
@@ -205,8 +204,8 @@ class WadListScreen extends AbstractMenuScreen {
     async _applyImport(wadImport) {
         const meta = await this._registry.applyImport(wadImport);
         const code = ((wadImport.replaced !== null) ? 'menu.wad.updated' : 'menu.wad.added');
-        this._setStatus(appTranslator.get(code, {wad: WadRegistry.displayLabel(meta)}));
         await this._refresh();
+        this._showNotice(appTranslator.get(code, {wad: WadRegistry.displayLabel(meta)}), false);
     }
 
     static _updateMessage(wadImport) {
@@ -233,12 +232,34 @@ class WadListScreen extends AbstractMenuScreen {
         this._confirm(appTranslator.get('menu.wad.deleteConfirm', {wad: WadRegistry.displayLabel(meta)}), async () => {
             try {
                 await this._registry.remove(meta.id);
-                this._clearStatus();
                 await this._refresh();
             } catch (error) {
                 this._showError(error);
             }
         });
+    }
+
+    // --- Messages: progress without a button, a final one with Close ---
+
+    _showProgress(message) {
+        this._closeProgress();
+        this._progress = new MenuModal(this._display).showLoading(message);
+    }
+
+    _closeProgress() {
+        if (this._progress !== null) {
+            this._progress.close();
+            this._progress = null;
+        }
+    }
+
+    _showNotice(message, isError) {
+        this._closeProgress();
+        new MenuModal(this._display).notice(message, isError);
+    }
+
+    _setError(message) {
+        this._showNotice(message, true);
     }
 
     _onSelectWad(meta) {

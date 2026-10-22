@@ -39,9 +39,13 @@ class AbstractMenuScreen extends AppMenuAbstractScreen {
         return new MenuModal(this._display).confirm(message, onConfirm);
     }
 
+    _showError(error) {
+        this._setError(this._errorMessage(error));
+    }
+
     // An error outside the WadError set is a genuine bug: it shows its raw
     // English message, which is what a report needs.
-    _showError(error) {
+    _errorMessage(error) {
         const translationCodes = {
             'fetch-offline':       'error.fetchOffline',
             'fetch-blocked':       'error.fetchBlocked',
@@ -57,10 +61,10 @@ class AbstractMenuScreen extends AppMenuAbstractScreen {
 
         const code = ((error instanceof WadError) ? error.getCode() : null);
         if (translationCodes[code] === undefined) {
-            this._setError(appTranslator.get('error.generic', {message: error.message}));
-            return;
+            return appTranslator.get('error.generic', {message: error.message});
         }
         const detail = error.getDetail();
-        this._setError(appTranslator.get(translationCodes[code]) + ((detail !== null) ? ' (' + detail + ')' : ''));
+
+        return appTranslator.get(translationCodes[code]) + ((detail !== null) ? ' (' + detail + ')' : '');
     }
 }
