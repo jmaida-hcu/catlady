@@ -321,8 +321,11 @@ class HudGameBar extends AbstractHud {
             width: '8em', height: '0.9em', borderRadius: '0.45em',
             backgroundColor: 'rgba(0, 0, 0, 0.55)', overflow: 'hidden'
         });
+        // Each new width restarts the transition from the width on screen, so a
+        // change while one is running stays continuous.
         const fill = this._createEl('div', {
-            width: '0%', height: '100%', borderRadius: '0.45em', backgroundColor: color
+            width: '0%', height: '100%', borderRadius: '0.45em', backgroundColor: color,
+            transition: 'width ' + HudGameBar.BAR_SMOOTHING_S + 's ease-out'
         });
         track.appendChild(fill);
 
@@ -505,6 +508,7 @@ HudGameBar.EFFECT_LINES = [
 HudGameBar.HEALTH_COLOR     = '#5dd35d';
 HudGameBar.HEALTH_LOW_COLOR = '#e05f5f';
 HudGameBar.HEALTH_LOW_RATIO = 0.25;
+HudGameBar.BAR_SMOOTHING_S  = 0.25;
 HudGameBar.HEART_COLOR      = '#e53935';
 HudGameBar.ARMOR_COLOR      = '#4d9fff';
 
