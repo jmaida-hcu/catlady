@@ -503,6 +503,13 @@ class DoomSimulation {
         for (let n = 0; n < Math.abs(wheel); n++) {
             weapon.cycleWeapon(((wheel > 0) ? 1 : -1));
         }
+        const slotOf = this._profile.hudWeaponSlots().byWeapon;
+        DoomSimulation.WEAPON_SLOT_BUTTONS.forEach((button, i) => {
+            const slot = (i + 1);
+            if (command.isJustPressed(button, previous)) {
+                weapon.cycleWithin(Object.keys(slotOf).filter((code) => (slotOf[code] === slot)));
+            }
+        });
     }
 
     _updateWeapon(player, dt, command) {
@@ -549,7 +556,11 @@ DoomSimulation.BUTTON_WEAPON_NEXT    = 'weaponNext';
 DoomSimulation.BUTTON_WEAPON_PREV    = 'weaponPrev';
 DoomSimulation.BUTTON_CHEAT_FULL_KIT = 'cheatFullKit';
 DoomSimulation.IMPULSE_WEAPON_WHEEL  = 'weaponWheel';
+// One button per weapon slot, 1 to 7 as in Doom and Heretic; also the keyboard actions binding them.
+DoomSimulation.WEAPON_SLOT_COUNT   = 7;
+DoomSimulation.WEAPON_SLOT_BUTTONS = Array.from({length: DoomSimulation.WEAPON_SLOT_COUNT}, (unused, i) => ('weaponSlot' + (i + 1)));
 // Every button and impulse of a command, in the order its binary message carries them.
 DoomSimulation.COMMAND_BUTTONS  = [UserCommand.JUMP, UserCommand.CROUCH, UserCommand.RUN, UserCommand.ACTION,
-    DoomSimulation.BUTTON_FIRE, DoomSimulation.BUTTON_WEAPON_NEXT, DoomSimulation.BUTTON_WEAPON_PREV, DoomSimulation.BUTTON_CHEAT_FULL_KIT];
+    DoomSimulation.BUTTON_FIRE, DoomSimulation.BUTTON_WEAPON_NEXT, DoomSimulation.BUTTON_WEAPON_PREV, DoomSimulation.BUTTON_CHEAT_FULL_KIT,
+    ...DoomSimulation.WEAPON_SLOT_BUTTONS];
 DoomSimulation.COMMAND_IMPULSES = [DoomSimulation.IMPULSE_WEAPON_WHEEL];

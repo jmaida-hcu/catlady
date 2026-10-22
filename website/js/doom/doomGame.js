@@ -271,12 +271,20 @@ class DoomGame {
     // The game's own controls join the engine's in every command: the
     // simulation never reads a device.
     _createCommandSampler(inputs) {
-        return new InputCommandSampler(inputs)
+        const sampler = new InputCommandSampler(inputs)
             .addButton(DoomSimulation.BUTTON_FIRE, () => inputs.readButtonFire())
             .addButton(DoomSimulation.BUTTON_WEAPON_NEXT, () => inputs.readButtonWeaponNext())
             .addButton(DoomSimulation.BUTTON_WEAPON_PREV, () => inputs.readButtonWeaponPrev())
             .addButton(DoomSimulation.BUTTON_CHEAT_FULL_KIT, () => inputs.readButtonCheatFullKit())
             .addImpulse(DoomSimulation.IMPULSE_WEAPON_WHEEL, () => inputs.readWeaponWheel());
+        const slotKeys = {};
+        for (const action of DoomSimulation.WEAPON_SLOT_BUTTONS) {
+            slotKeys[action] = '';
+            sampler.addButton(action, () => inputs.readKeyboardAction(action));
+        }
+        inputs.addKeyboardActions(slotKeys);
+
+        return sampler;
     }
 
     _animate(timestamp) {

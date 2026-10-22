@@ -136,6 +136,17 @@ class DoomPlayerWeapon {
         this.requestWeapon(owned[(i + dir + owned.length) % owned.length]);
     }
 
+    // A slot key: the owned weapon after the one already chosen in the slot,
+    // looping, or the slot's first owned one.
+    cycleWithin(codes) {
+        const owned = codes.filter((code) => this._user.hasWeapon(code));
+        if (owned.length === 0) {
+            return;
+        }
+        const i = owned.indexOf(this._targetWeapon());
+        this.requestWeapon(owned[(i + 1) % owned.length]);
+    }
+
     _targetWeapon() {
         return ((this._pendingWeapon !== null) ? this._pendingWeapon : this._readyWeapon);
     }

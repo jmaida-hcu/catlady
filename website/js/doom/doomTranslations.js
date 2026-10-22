@@ -1277,6 +1277,48 @@ class DoomTranslations {
                 it: 'Arma successiva',
                 es: 'Arma siguiente'
             },
+            'settings.keyboard.weaponSlot1': {
+                fr: 'Arme 1',
+                en: 'Weapon 1',
+                it: 'Arma 1',
+                es: 'Arma 1'
+            },
+            'settings.keyboard.weaponSlot2': {
+                fr: 'Arme 2',
+                en: 'Weapon 2',
+                it: 'Arma 2',
+                es: 'Arma 2'
+            },
+            'settings.keyboard.weaponSlot3': {
+                fr: 'Arme 3',
+                en: 'Weapon 3',
+                it: 'Arma 3',
+                es: 'Arma 3'
+            },
+            'settings.keyboard.weaponSlot4': {
+                fr: 'Arme 4',
+                en: 'Weapon 4',
+                it: 'Arma 4',
+                es: 'Arma 4'
+            },
+            'settings.keyboard.weaponSlot5': {
+                fr: 'Arme 5',
+                en: 'Weapon 5',
+                it: 'Arma 5',
+                es: 'Arma 5'
+            },
+            'settings.keyboard.weaponSlot6': {
+                fr: 'Arme 6',
+                en: 'Weapon 6',
+                it: 'Arma 6',
+                es: 'Arma 6'
+            },
+            'settings.keyboard.weaponSlot7': {
+                fr: 'Arme 7',
+                en: 'Weapon 7',
+                it: 'Arma 7',
+                es: 'Arma 7'
+            },
             'settings.action.pause': {
                 fr: 'Pause',
                 en: 'Pause',
