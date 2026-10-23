@@ -73,6 +73,65 @@ class WadPicture {
     }
 
     /**
+     * The title screen of a WAD: TITLEPIC, a picture (Doom) or a PNG (a
+     * modern PWAD), or TITLE, a raw 320x200 screen of palette indices
+     * (Heretic).
+     *
+     * @param {WadFile} wadFile
+     * @returns {ImageData|Blob|null} null when the WAD has none or its picture does not hold together
+     */
+    static titleImage(wadFile) {
+        const palette = new WadPalette(wadFile);
+        const picture = wadFile.getLump('TITLEPIC');
+        if (picture !== null) {
+            if (WadPicture.isPng(picture)) {
+                return new Blob([new Uint8Array(picture.buffer, picture.byteOffset, picture.byteLength)], {type: 'image/png'});
+            }
+
+            return ((WadPicture.isPatch(picture)) ? WadPicture.patchToImageData(picture, palette) : null);
+        }
+        const raw = wadFile.getLump('TITLE');
+        if ((raw === null) || (raw.byteLength !== WadPicture.SCREEN_WIDTH * WadPicture.SCREEN_HEIGHT)) {
+            return null;
+        }
+        const image = new ImageData(WadPicture.SCREEN_WIDTH, WadPicture.SCREEN_HEIGHT);
+        for (let i = 0; i < raw.byteLength; i++) {
+            const color = palette.getColor(raw.getUint8(i));
+            image.data[i * 4]     = color[0];
+            image.data[i * 4 + 1] = color[1];
+            image.data[i * 4 + 2] = color[2];
+            image.data[i * 4 + 3] = 255;
+        }
+
+        return image;
+    }
+
+    static isPng(dv) {
+        return ((dv.byteLength >= WadPicture.PNG_SIGNATURE_BYTES) && (dv.getUint32(0) === WadPicture.PNG_SIGNATURE));
+    }
+
+    // A header that holds together before anything is allocated: a lump of another format read as a patch would
+    // ask for a picture of gigabytes.
+    static isPatch(dv) {
+        if (dv.byteLength < WadPicture.PATCH_HEADER_BYTES) {
+            return false;
+        }
+        const width  = dv.getUint16(0, true);
+        const height = dv.getUint16(2, true);
+        if ((width === 0) || (height === 0) || (width > WadPicture.PATCH_MAX_SIDE) || (height > WadPicture.PATCH_MAX_SIDE)
+            || (dv.byteLength < WadPicture.PATCH_HEADER_BYTES + width * 4)) {
+            return false;
+        }
+        for (let x = 0; x < width; x++) {
+            if (dv.getUint32(WadPicture.PATCH_HEADER_BYTES + x * 4, true) >= dv.byteLength) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Paste a patch into a destination ImageData (equivalent of PIL paste with
      * alpha mask): only the opaque pixels of the patch are copied, with clipping.
      *
@@ -105,3 +164,11 @@ class WadPicture {
         }
     }
 }
+
+WadPicture.SCREEN_WIDTH        = 320;
+WadPicture.SCREEN_HEIGHT       = 200;
+WadPicture.PATCH_HEADER_BYTES  = 8;
+WadPicture.PATCH_MAX_SIDE      = 2048;
+// "\x89PNG", the first four of the eight bytes of a PNG signature.
+WadPicture.PNG_SIGNATURE       = 0x89504E47;
+WadPicture.PNG_SIGNATURE_BYTES = 8;

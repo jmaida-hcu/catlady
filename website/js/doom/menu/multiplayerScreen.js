@@ -26,7 +26,7 @@ class MultiplayerScreen extends AbstractMenuScreen {
     }
 
     _build() {
-        const {panel, listEl} = this._buildWadPanel(this._wadMeta, appTranslator.get('help.multiplayer'));
+        const {listEl} = this._buildWadMenu(this._wadMeta, appTranslator.get('help.multiplayer'));
 
         const coop       = this._addNewGameItem(listEl, 'multiplayer.newCooperative', DoomCoopRules);
         const deathmatch = this._addNewGameItem(listEl, 'multiplayer.newDeathmatch', DoomDeathmatchRules);
@@ -34,7 +34,7 @@ class MultiplayerScreen extends AbstractMenuScreen {
         this._addListItem(listEl, appTranslator.get('multiplayer.options'), () => {
             this._openModal(new MenuOptionsModal(this._display)).showMultiplayer();
         });
-        this._addBackButton(panel);
+        this._addBackItem(listEl);
         this._nav.selectFirst();
         for (const item of [coop, deathmatch, join]) {
             AppMenuNetGate.greyWhenUnavailable(item, () => this._availability.unavailableReason());

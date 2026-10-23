@@ -116,7 +116,7 @@ class MenuSaveSlotsModal extends AppMenuAbstractListModal {
             ? () => this._confirmOverwrite(slot)
             : () => this._loadSlot(meta));
         const item = this._nav.addItemIn(listEl, label, action);
-        AppMenuDom.addText(item, 'app-menu-item-value', AppMenuDom.formatDate(meta.savedAt, true));
+        AppMenuDom.addValue(item, AppMenuDom.formatDate(meta.savedAt, true));
 
         AppMenuDom.addDeleteButton(item, appTranslator.get('menu.save.delete'), () => {
             this._confirmDelete(slot);
@@ -163,7 +163,7 @@ class MenuSaveSlotsModal extends AppMenuAbstractListModal {
             doomSaveStore.remove(this._wadMeta.id, slot)
                 .then(() => this._refresh())
                 .catch((error) => this._showStorageError(error));
-        });
+        }, null, null, true);
     }
 
     async _refresh() {

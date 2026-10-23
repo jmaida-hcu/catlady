@@ -1,9 +1,10 @@
 /**
- * Base of the modals the game shows over its own level (pause, death): the
- * transparent AppMenuDisplay plus the translucent modal overlay, a title
- * rebuilt through its provider whenever a stacked child closes (the language
- * may have changed), the game's save/load context feeding the stacked slots
- * modal, and the quit entry. Escape stays with the game loop.
+ * Base of the modals the game shows over its own level (pause, death): a
+ * simple centred menu on the transparent AppMenuDisplay, over the game, its
+ * header rebuilt through its provider whenever a stacked
+ * child closes (the language may have changed), the game's save/load context
+ * feeding the stacked slots modal, and the quit entry last. Escape stays
+ * with the game loop.
  */
 class AbstractGameMenuModal extends AppMenuAbstractListModal {
     /**
@@ -13,10 +14,10 @@ class AbstractGameMenuModal extends AppMenuAbstractListModal {
         super(display);
 
         this._nav.setEscapeAsBack(false);
-        this._onQuit        = null;
-        this._titleProvider = null;
-        this._saveContext   = null;
-        this._stackedModals = {};
+        this._onQuit         = null;
+        this._headerProvider = null;
+        this._saveContext    = null;
+        this._stackedModals  = {};
     }
 
     setOnQuit(callback) {
@@ -39,16 +40,14 @@ class AbstractGameMenuModal extends AppMenuAbstractListModal {
     }
 
     /**
-     * @param {function} titleProvider returns the (translated) modal title
+     * @param {function} headerProvider returns the (translated) header: {title, subtitle|null}
      */
-    show(titleProvider) {
-        this._titleProvider = titleProvider ?? this._titleProvider;
+    show(headerProvider) {
+        this._headerProvider = headerProvider ?? this._headerProvider;
 
-        const {modal} = this._createShell(this._titleProvider(), 'app-menu-modal app-menu-modal-wide', 'app-menu-subtitle');
-        const listEl  = AppMenuDom.addElement(modal, 'div', 'app-menu-list');
+        const header   = this._headerProvider();
+        const {listEl} = this._openSimpleShell(header.title, header.subtitle);
         this._addEntries(listEl);
-
-        this._nav.attach();
         this._nav.selectFirst();
 
         return this;

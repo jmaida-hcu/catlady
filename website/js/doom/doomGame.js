@@ -369,7 +369,7 @@ class DoomGame {
         this._role.announcePhase({type: DoomNetProtocol.PAUSE});
         doomSound.playUi('menu/activate');
 
-        this._pauseDisplay = new AppMenuDisplay('screen').init(true);
+        this._pauseDisplay = DoomGame._frozenDisplay();
         this._pauseModal   = new MenuPauseModal(this._pauseDisplay)
             .setOnResume(() => this._leavePause())
             .setOnRestart(((this._rules.allowsLevelRestart() && this._role.restartsLevel()) ? () => this._restartLevel() : null))
@@ -380,7 +380,7 @@ class DoomGame {
             .setSaveContext(this._saveContext())
             .setSessionContext(this._hosted.pauseContext())
             .setQuitCode(this._role.quitCode())
-            .show(() => this._pauseTitle());
+            .show(() => this._pauseHeader());
     }
 
     // Null without WAD metadata (direct test shortcut: saves are keyed by WAD)
@@ -445,12 +445,18 @@ class DoomGame {
         }
     }
 
-    // "{wad} — Episode {n}"; a MAPxx game is episode 1.
-    _pauseTitle() {
-        const episode  = (WadLevelCode.parse(this._levelCode).episode ?? 1);
-        const wadTitle = ((this._wadMeta !== null) ? WadRegistry.displayTitle(this._wadMeta) : this._levelCode);
+    _pauseHeader() {
+        return {
+            title:    ((this._wadMeta !== null) ? WadRegistry.displayTitle(this._wadMeta) : this._levelCode),
+            subtitle: this._levelLine()
+        };
+    }
 
-        return wadTitle + ' — ' + appTranslator.get('menu.episode.item', {episode: episode});
+    // "Episode {n} · {level} · {name}", the name left out when the level has none; a MAPxx game is episode 1.
+    _levelLine() {
+        const episode = appTranslator.get('menu.episode.item', {episode: (WadLevelCode.parse(this._levelCode).episode ?? 1)});
+
+        return [episode, this._levelCode, this._levelName].filter((part) => (part !== null)).join(' · ');
     }
 
     quitToMenu() {
@@ -546,7 +552,7 @@ class DoomGame {
                 this.quitToMenu();
             })
             .setSaveContext(this._saveContext())
-            .show(() => appTranslator.get('game.death.title'));
+            .show(() => ({title: appTranslator.get('game.death.title'), subtitle: this._levelLine()}));
     }
 
     _closeDeathMenu() {
@@ -651,7 +657,7 @@ class DoomGame {
         // A pointer-locked canvas would swallow the clicks on the tally button.
         this._inputs.releaseMouse().setVirtualPadVisible(false);
 
-        const display = new AppMenuDisplay('screen').init(true);
+        const display = DoomGame._frozenDisplay();
         const modal   = new MenuModal(display);
         // Vanilla order: the story text comes after the tally.
         const finaleText = this._finaleText(outcome.secret);
@@ -666,7 +672,7 @@ class DoomGame {
             buttonCode: buttonCode
         };
 
-        modal.tally(this._tallyTitle(nextLevel), this._tallyLines(outcome.players), ((withButtons) ? appTranslator.get(tallyCode) : null), () => {
+        modal.tally(this._tallyTitle(nextLevel), this._tallyTime(), this._tallyScores(outcome.players), ((withButtons) ? appTranslator.get(tallyCode) : null), () => {
             if (finaleText === null) {
                 this._startNextLevel(display, modal, nextLevel);
                 return;
@@ -730,19 +736,27 @@ class DoomGame {
         return ((text !== null) ? DoomFinaleTexts.reflow(text) : null);
     }
 
-    // With players of their own, the scores go to the players' table: the time stays common.
-    _tallyLines(players) {
-        const stats = this._role.getLevelStats();
-        const time  = {label: appTranslator.get('game.tally.time'), value: DoomGame.formatDuration(stats.getLevelTimeMs())};
-        if (players !== null) {
-            return [time];
-        }
-        const counts = stats.exportCounts();
+    _tallyTime() {
+        return {label: appTranslator.get('game.tally.time'), value: DoomGame.formatDuration(this._role.getLevelStats().getLevelTimeMs())};
+    }
 
-        return [time, ...DoomGame.TALLY_SCORES.map((score) => ({
-            label: appTranslator.get(score.code),
-            value: DoomGame._scoreText(counts[score.found], counts[score.total], true)
-        }))];
+    // With players of their own, the scores go to the players' table.
+    _tallyScores(players) {
+        if (players !== null) {
+            return [];
+        }
+        const counts = this._role.getLevelStats().exportCounts();
+
+        return DoomGame.TALLY_SCORES.map((score) => DoomGame._tallyScore(appTranslator.get(score.code), counts[score.found], counts[score.total]));
+    }
+
+    // A level without any of them has no bar: "none".
+    static _tallyScore(label, found, total) {
+        if (total <= 0) {
+            return {label: label, count: appTranslator.get('game.tally.none'), percent: null, ratio: null};
+        }
+
+        return {label: label, count: found + ' / ' + total, percent: DoomGame.formatPercent(found, total), ratio: Math.min(1, found / total)};
     }
 
     _tallyTable(players) {
@@ -758,7 +772,7 @@ class DoomGame {
             columns: players.map((player) => ({name: player.nickname, color: player.color})),
             rows:    DoomGame.TALLY_SCORES.map((score) => ({
                 label:  appTranslator.get(score.code),
-                values: players.map((player) => DoomGame._scoreText(player[score.found], counts[score.total], false))
+                values: players.map((player) => DoomGame._playerScoreText(player[score.found], counts[score.total]))
             }))
         };
     }
@@ -799,15 +813,23 @@ class DoomGame {
         });
     }
 
-    // A score with nothing to find reads "none" instead of 0/0; a player's
-    // column leaves out the level total, its percentage being of that total.
-    static _scoreText(found, total, withTotal) {
+    // A player's column of the table: a score with nothing to find reads "none"; the level total is left out, the
+    // percentage being of that total.
+    static _playerScoreText(found, total) {
         if (total <= 0) {
             return appTranslator.get('game.tally.none');
         }
-        const percent = ' (' + DoomGame.formatPercent(found, total) + ')';
 
-        return ((withTotal) ? (found + '/' + total + percent) : (found + percent));
+        return found + ' (' + DoomGame.formatPercent(found, total) + ')';
+    }
+
+    // A menu over a game that no longer moves (pause, end of a level): the theme blurs the game under it. Never
+    // under a game that runs on (the death menu): the blur would be redone at every frame.
+    static _frozenDisplay() {
+        const display = new AppMenuDisplay('screen').init(true);
+        display.getContainer().classList.add(DoomGame.FROZEN_DISPLAY_CLASS);
+
+        return display;
     }
 
     // M:SS, or H:MM:SS past the hour.
@@ -860,11 +882,12 @@ class DoomGame {
     }
 }
 
-DoomGame.LOCAL_PLAYER_ID = DoomPlayer.MAIN_ID;
+DoomGame.LOCAL_PLAYER_ID      = DoomPlayer.MAIN_ID;
 // Every multiplayer session renders with it, whatever the display setting.
-DoomGame.SESSION_RENDERER = 'webgl';
+DoomGame.SESSION_RENDERER     = 'webgl';
+DoomGame.FROZEN_DISPLAY_CLASS = 'doom-menu-frozen';
 // The tally's score rows: `found` keys the level's and each player's counts, `total` the level's total.
-DoomGame.TALLY_SCORES = [
+DoomGame.TALLY_SCORES         = [
     {code: 'game.tally.kills',   found: 'kills',   total: 'killsTotal'},
     {code: 'game.tally.items',   found: 'items',   total: 'itemsTotal'},
     {code: 'game.tally.secrets', found: 'secrets', total: 'secretsTotal'}

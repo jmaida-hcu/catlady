@@ -11,8 +11,9 @@ class DifficultyScreen extends AbstractMenuScreen {
     constructor(navigator, display) {
         super(navigator, display);
 
-        this._wadMeta = null;
-        this._episode = null;
+        this._wadMeta     = null;
+        this._episode     = null;
+        this._showEpisode = false;
 
         // Skill 0 is our own exploration mode: the skill-1 world without
         // monsters. The names are a generic scale, not the vanilla titles.
@@ -20,35 +21,34 @@ class DifficultyScreen extends AbstractMenuScreen {
     }
 
     /**
-     * @param {object} meta
-     * @param {object} episode chosen episode ({episode, firstLevel, name})
+     * @param {object}  meta
+     * @param {object}  episode     chosen episode ({episode, firstLevel, name})
+     * @param {boolean} showEpisode the WAD has several: the header names the one chosen
      */
-    setWad(meta, episode) {
-        this._wadMeta = meta;
-        this._episode = episode;
+    setWad(meta, episode, showEpisode) {
+        this._wadMeta     = meta;
+        this._episode     = episode;
+        this._showEpisode = showEpisode;
 
         return this;
     }
 
     _build() {
-        const episodeLabel    = appTranslator.get('menu.episode.item', {episode: this._episode.episode});
-        const {panel, listEl} = this._buildWadPanel(this._wadMeta, episodeLabel + ' — ' + appTranslator.get('menu.difficulty.title'));
+        const episodeLabel = ((this._showEpisode) ? appTranslator.get('menu.episode.item', {episode: this._episode.episode}) : null);
+        const {listEl}     = this._buildWadMenu(this._wadMeta, appTranslator.get('menu.difficulty.title'), episodeLabel);
 
         for (const skill of this._skills) {
-            const item = this._addListItem(listEl, appTranslator.get('difficulty.' + skill), () => {
+            this._addListItem(listEl, appTranslator.get('difficulty.' + skill), () => {
                 this._onSelectSkill(skill);
             });
-
-            this._addListItemInfos(item, appTranslator.get('menu.difficulty.skill', {skill: skill}));
         }
-
-        this._addBackButton(panel);
+        this._addBackItem(listEl);
 
         this._selectCurrentSkill();
     }
 
     _onBack() {
-        this._navigator.openEpisodes(this._wadMeta);
+        this._navigator.leaveDifficulty(this._wadMeta);
     }
 
     _onSelectSkill(skill) {

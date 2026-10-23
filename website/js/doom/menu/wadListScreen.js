@@ -1,6 +1,9 @@
 /**
- * Screen 1: list of the stored WAD files, with add (url or local file) and
- * delete, and the way to join a game whatever WAD it is played on.
+ * Screen 1: list of the stored WAD files with a delete cross on each, the
+ * detail of the selected one on the right with its Play button (a first tap
+ * on a row only selects it: a finger sees the detail before opening), adding
+ * a WAD (by URL or a local file, through MenuAddWadModal) and joining a game
+ * whatever WAD it is played on; the language and the help in the corner.
  */
 class WadListScreen extends AbstractMenuScreen {
     /**
@@ -16,75 +19,40 @@ class WadListScreen extends AbstractMenuScreen {
         this._registry       = registry;
         this._join           = new MenuJoinFlow(navigator, display, links, new NetGameAvailability(links, () => new Object3dRendererWebGL().isAvailable()));
         this._listEl         = null;
-        this._urlInput       = null;
-        this._fileInput      = null;
-        this._formButtons    = [];
+        this._detailEl        = null;
+        this._addButton      = null;
         this._languageButton = null;
         this._progress       = null;
+        this._shownWads      = [];
+        this._typedUrl       = '';
     }
 
     _build() {
-        this._listEl      = null;
-        this._urlInput    = null;
-        this._fileInput   = null;
-        this._formButtons = [];
+        this._shownWads = [];
 
-        const {panel, subtitleEl, listEl} = this._buildPanel(appTranslator.get('menu.wad.title'));
-        this._listEl = listEl;
+        const {panel, listEl} = this._buildPanel(appTranslator.get('menu.wad.title'));
+        this._listEl  = listEl;
+        this._detailEl = this._addDetailPanel();
+        this._nav.setOnSelect((index) => this._showDetail(this._shownWads[index] ?? null)).setSelectFirstTap(true);
 
-        subtitleEl.classList.add('doom-menu-subtitle-with-action');
-        const joinButton = AppMenuDom.addButton(subtitleEl, 'app-menu-button doom-menu-subtitle-action', appTranslator.get('multiplayer.join'),
-            () => this._join.start());
-        this._join.greyWhenUnavailable(joinButton);
-
-        const corner = this._addElement('div', 'doom-menu-corner');
-        this._languageButton = AppMenuDom.addButton(corner, 'app-menu-button doom-menu-language',
-            doomSettings.getListLabel(this._languageDefinition()),
-            () => this._cycleLanguage());
-        // Up from the list enters the row by its last button: the join one, right above the list.
-        this._nav.setSideButtons([
-            this._languageButton,
-            AppMenuDom.addButton(corner, 'app-menu-button', appTranslator.get('help.guide'),
-                () => this._openHelp()),
-            joinButton
+        [this._languageButton] = this._addCornerButtons([
+            {icon: 'language', label: doomSettings.getListLabel(this._languageDefinition()), action: () => this._cycleLanguage()},
+            {icon: 'help', label: appTranslator.get('help.guide'), action: () => this._openHelp()}
         ]);
 
-        this._buildAddForm(panel);
+        const actions = this._addElement('div', 'app-menu-actions app-menu-actions-start', panel);
+        this._addButton = AppMenuDom.addIconButton(actions, 'app-menu-button app-menu-button-secondary', 'add', appTranslator.get('menu.wad.add'),
+            () => this._openAdd());
+        const joinButton = AppMenuDom.addIconButton(actions, 'app-menu-button app-menu-button-secondary', 'players', appTranslator.get('multiplayer.join'),
+            () => this._join.start());
+        this._join.greyWhenUnavailable(joinButton);
+        this._nav.setBottomButtons([this._addButton, joinButton], null);
 
+        this._showDetail(null);
         this._refresh();
     }
 
     // --- Build ---
-
-    _buildAddForm(panel) {
-        const form = this._addElement('div', 'doom-menu-form', panel);
-
-        this._urlInput = this._addElement('input', 'doom-menu-input', form);
-        this._urlInput.type = 'text';
-        this._urlInput.placeholder = appTranslator.get('menu.wad.urlPlaceholder');
-        this._urlInput.addEventListener('keydown', (event) => {
-            if ((event.code === 'Enter') || (event.code === 'NumpadEnter')) {
-                event.preventDefault();
-                addUrlButton.click();
-            }
-        });
-
-        const addUrlButton = this._addButton(appTranslator.get('menu.wad.addUrl'), () => {
-            this._onAddUrl();
-        }, form);
-        this._formButtons.push(addUrlButton);
-
-        this._fileInput = this._addElement('input', 'doom-menu-file-input', form);
-        this._fileInput.type = 'file';
-        this._fileInput.accept = '.wad';
-        this._fileInput.addEventListener('change', (event) => {
-            this._onAddFile(event);
-        });
-
-        this._formButtons.push(this._addButton(appTranslator.get('menu.wad.addFile'), () => {
-            this._fileInput.click();
-        }, form));
-    }
 
     async _refresh() {
         let list;
@@ -96,8 +64,12 @@ class WadListScreen extends AbstractMenuScreen {
         }
 
         this._clearList(this._listEl);
+        this._shownWads = list;
+        // With nothing to pick, adding a WAD is the action of the screen.
+        this._addButton.classList.toggle('app-menu-button-secondary', (list.length > 0));
 
         if (list.length === 0) {
+            this._showDetail(null);
             this._addListEmpty(this._listEl, appTranslator.get('menu.wad.empty'));
             AppMenuDom.addText(this._listEl, 'doom-menu-empty-hint', appTranslator.get('menu.wad.emptyHint'));
             AppMenuDom.addText(this._listEl, 'doom-menu-empty-hint', appTranslator.get('menu.wad.emptyHintHelp'));
@@ -112,7 +84,10 @@ class WadListScreen extends AbstractMenuScreen {
         list.forEach((meta, i) => {
             this._buildItem(meta, shared.has(titles[i]));
         });
-        this._nav.selectFirst();
+        // The focus may stay on a corner or bottom button (a language change, an add from the keyboard): the
+        // detail shows the first WAD all the same.
+        this._nav.restoreIndex(0);
+        this._showDetail(list[0]);
         this._completeIdentities(list.filter((meta) => !WadRegistry.isDescribed(meta)));
     }
 
@@ -131,56 +106,62 @@ class WadListScreen extends AbstractMenuScreen {
         }
     }
 
+    // The title alone: the rest goes to the detail panel, the version only telling apart two WADs of the same title.
     _buildItem(meta, ambiguousTitle) {
         const item = this._addListItem(this._listEl, WadRegistry.displayTitle(meta), () => {
             this._onSelectWad(meta);
         });
-
-        const infos = [((ambiguousTitle) ? meta.name : null), WadRegistry.versionLabel(meta), AppMenuDom.formatSize(meta.size), AppMenuDom.formatDay(meta.addedAt)];
-        this._addListItemInfos(item, infos.filter((info) => (info !== null)).join(' — '));
+        if (ambiguousTitle) {
+            this._addListItemInfos(item, (WadRegistry.versionLabel(meta) ?? meta.name));
+        }
 
         AppMenuDom.addDeleteButton(item, appTranslator.get('menu.wad.delete'), () => {
             this._onDeleteWad(meta);
         });
     }
 
-    // --- Handlers ---
-
-    async _onAddUrl() {
-        const url = WadRegistry.normalizeUrl(this._urlInput.value);
-        if (url === '') {
-            this._showNotice(appTranslator.get('menu.wad.urlMissing'), true);
+    _showDetail(meta) {
+        this._detailEl.innerHTML     = '';
+        this._detailEl.style.display = ((meta !== null) ? '' : 'none');
+        if (meta === null) {
             return;
         }
-        this._urlInput.value = url;
+        AppMenuDom.addText(this._detailEl, 'app-menu-detail-title', WadRegistry.displayTitle(meta));
+        const facts = [
+            {label: appTranslator.get('menu.wad.version'), value: WadRegistry.versionLabel(meta)},
+            {label: appTranslator.get('menu.wad.size'), value: AppMenuDom.formatSize(meta.size)},
+            {label: appTranslator.get('menu.wad.addedAt'), value: AppMenuDom.formatLongDay(meta.addedAt)}
+        ];
+        AppMenuDom.addFacts(this._detailEl, facts.filter((fact) => (fact.value !== null)));
+        const actions = AppMenuDom.addElement(this._detailEl, 'div', 'app-menu-detail-actions');
+        AppMenuDom.addButton(actions, 'app-menu-button app-menu-button-block', appTranslator.get('menu.wad.play'), () => this._onSelectWad(meta));
+    }
 
-        this._setBusy(true);
+    _openAdd() {
+        new MenuAddWadModal(this._display).open((url) => this._onAddUrl(url), (file) => this._onAddFile(file), this._typedUrl);
+    }
+
+    // --- Handlers ---
+
+    // A failed download keeps the address for the next try.
+    async _onAddUrl(url) {
+        this._typedUrl = url;
         this._showProgress(appTranslator.get('menu.wad.downloading'));
         try {
-            const wadImport = await this._registry.addFromUrl(url);
-            this._urlInput.value = '';
-            await this._offerImport(wadImport);
+            await this._offerImport(await this._registry.addFromUrl(url));
+            this._typedUrl = '';
         } catch (error) {
             this._showError(error);
         }
-        this._setBusy(false);
     }
 
-    async _onAddFile(event) {
-        const file = event.target.files[0];
-        if (!file) {
-            return;
-        }
-
-        this._setBusy(true);
+    async _onAddFile(file) {
         this._showProgress(appTranslator.get('menu.wad.reading'));
         try {
             await this._offerImport(await this._registry.addFromFile(file));
         } catch (error) {
             this._showError(error);
         }
-        this._fileInput.value = '';
-        this._setBusy(false);
     }
 
     async _offerImport(wadImport) {
@@ -189,16 +170,19 @@ class WadListScreen extends AbstractMenuScreen {
             return;
         }
         this._closeProgress();
-        this._confirm(WadListScreen._updateMessage(wadImport), async () => {
-            this._setBusy(true);
+        const question = appTranslator.get('menu.wad.updateConfirm', {
+            wad:  WadRegistry.displayTitle(wadImport.meta),
+            from: WadRegistry.versionLabel(wadImport.replaced),
+            to:   WadRegistry.versionLabel(wadImport.meta)
+        });
+        this._confirm(question, async () => {
             this._showProgress(appTranslator.get('menu.wad.updating', {wad: WadRegistry.displayTitle(wadImport.meta)}));
             try {
                 await this._applyImport(wadImport);
             } catch (error) {
                 this._showError(error);
             }
-            this._setBusy(false);
-        });
+        }, null, null, false, WadListScreen._updateDetail(wadImport));
     }
 
     async _applyImport(wadImport) {
@@ -208,12 +192,9 @@ class WadListScreen extends AbstractMenuScreen {
         this._showNotice(appTranslator.get(code, {wad: WadRegistry.displayLabel(meta)}), false);
     }
 
-    static _updateMessage(wadImport) {
-        const lines = [appTranslator.get('menu.wad.updateConfirm', {
-            wad:  WadRegistry.displayTitle(wadImport.meta),
-            from: WadRegistry.versionLabel(wadImport.replaced),
-            to:   WadRegistry.versionLabel(wadImport.meta)
-        })];
+    // What the update does to the saves of the WAD, null when it touches none.
+    static _updateDetail(wadImport) {
+        const lines = [];
         if (wadImport.saves.restarted.length > 0) {
             lines.push(appTranslator.get('menu.wad.updateRestarted', {slots: WadListScreen._slotList(wadImport.saves.restarted)}));
         }
@@ -221,7 +202,7 @@ class WadListScreen extends AbstractMenuScreen {
             lines.push(appTranslator.get('menu.wad.updateRemoved', {slots: WadListScreen._slotList(wadImport.saves.removed)}));
         }
 
-        return lines.join('\n\n');
+        return ((lines.length > 0) ? lines.join('\n\n') : null);
     }
 
     static _slotList(saves) {
@@ -236,7 +217,7 @@ class WadListScreen extends AbstractMenuScreen {
             } catch (error) {
                 this._showError(error);
             }
-        });
+        }, null, null, true, appTranslator.get('menu.wad.deleteDetail'));
     }
 
     // --- Messages ---
@@ -281,14 +262,6 @@ class WadListScreen extends AbstractMenuScreen {
 
     _languageDefinition() {
         return doomSettings.getDefinition(WadListScreen.LANGUAGE_KEY);
-    }
-
-    // --- Internal ---
-
-    _setBusy(busy) {
-        for (const button of this._formButtons) {
-            button.disabled = busy;
-        }
     }
 }
 

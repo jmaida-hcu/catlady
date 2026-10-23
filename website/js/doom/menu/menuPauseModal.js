@@ -1,6 +1,6 @@
 /**
- * Pause modal, shown by the game over its own frozen frame. Title
- * "{wad} — Episode {n}", navigable entries (resume / restart the level /
+ * Pause modal, shown by the game over its own frozen frame. Header: the WAD,
+ * then "Episode {n} · {level} · {name}"; navigable entries (resume / restart the level /
  * load / save / multiplayer / options / leave, labelled by the game) and no
  * bottom button: Backspace and the gamepad back button resume, the Escape
  * toggle stays driven by the game loop — and closes everything, the stacked
@@ -90,7 +90,7 @@ class MenuPauseModal extends AbstractGameMenuModal {
     }
 
     _confirmRestart() {
-        this._confirm(appTranslator.get('game.level.restartConfirm'), this._onRestart, appTranslator.get('game.level.restartButton'));
+        this._confirm(appTranslator.get('game.level.restartConfirm'), this._onRestart, null, null, false, appTranslator.get('game.level.restartDetail'));
     }
 
     _openOptions() {

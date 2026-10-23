@@ -3,7 +3,7 @@
  * state at each render: switch to cooperative, share screen and the
  * multiplayer options outside a session; the lobby, switch to cooperative,
  * stop sharing and the options while the screen is shared; the lobby, the
- * stop entry of the mode and the options in a game the subs play. Its back button,
+ * stop entry of the mode and the options in a game the subs play. Its back entry,
  * Backspace, Escape and the gamepad back button return to the pause.
  */
 class MenuMultiplayerModal extends AbstractGameMenuModal {
@@ -26,11 +26,12 @@ class MenuMultiplayerModal extends AbstractGameMenuModal {
         return this;
     }
 
-    // Escape goes through the back button like every stacked modal: its press
+    // Escape goes through the back entry like every stacked modal: its press
     // feedback keeps this modal on top while the game reads the pause toggle.
     show() {
-        const {bodyEl} = this._openShell(appTranslator.get('multiplayer.pause.menu'), appTranslator.get('menu.back'));
-        this._addEntries(AppMenuDom.addElement(bodyEl, 'div', 'app-menu-list'));
+        const {listEl} = this._openSimpleShell(appTranslator.get('multiplayer.pause.menu'));
+        this._addEntries(listEl);
+        this._nav.setBackTarget(this._nav.addItemIn(listEl, appTranslator.get('menu.back'), () => this.close()));
         this._nav.selectFirst();
 
         return this;
@@ -117,7 +118,7 @@ class MenuMultiplayerModal extends AbstractGameMenuModal {
             if (this._sessionContext.stop()) {
                 this.show();
             }
-        });
+        }, null, null, false, appTranslator.get('multiplayer.pause.stopDetail'));
     }
 
     _resume() {

@@ -10,7 +10,7 @@ class MenuNavigator {
 
         this._wadListScreen     = new WadListScreen(this, this._display, this._registry);
         this._wadMenuScreen     = new WadMenuScreen(this, this._display);
-        this._episodeScreen     = new EpisodeScreen(this, this._display, this._registry);
+        this._episodeScreen     = new EpisodeScreen(this, this._display);
         this._difficultyScreen  = new DifficultyScreen(this, this._display);
         this._multiplayerScreen = new MultiplayerScreen(this, this._display);
         this._fallbackScreen    = new FallbackScreen(this, this._display);
@@ -18,6 +18,9 @@ class MenuNavigator {
         this._currentScreen      = null;
         this._selectedDifficulty = MenuNavigator.DEFAULT_SKILL;
         this._launch             = null;   // {nickname, episode, rules: the DoomGameRules class} of the multiplayer game being launched, null for single player
+        this._wadFiles           = new Map();   // per selected WAD, read once for the title picture, the episodes and the sounds
+        this._titlePictures      = new Map();
+        this._episodes           = new Map();
     }
 
     /**
@@ -99,9 +102,68 @@ class MenuNavigator {
     }
 
     showWadList() {
-        // Back to the WAD list = no WAD selected any more: its sounds go away.
+        // Back to the WAD list = no WAD selected any more: its sounds, its file and what was read from it go away.
         doomSound.reset();
+        for (const titleUrl of this._titlePictures.values()) {
+            titleUrl.then((url) => MenuNavigator._releaseUrl(url));
+        }
+        this._wadFiles.clear();
+        this._titlePictures.clear();
+        this._episodes.clear();
         this._switchTo(this._wadListScreen);
+    }
+
+    /**
+     * The title screen of a WAD as an image URL.
+     *
+     * @param {object} meta
+     * @returns {Promise<string|null>} null when the WAD has none or it cannot be read
+     */
+    getTitlePictureUrl(meta) {
+        if (!this._titlePictures.has(meta.id)) {
+            this._titlePictures.set(meta.id, this._readWad(meta)
+                .then((wadFile) => MenuNavigator._imageUrl(WadPicture.titleImage(wadFile)))
+                .catch((error) => {
+                    console.warn('MenuNavigator - unable to read the title picture of [' + meta.name + ']: ' + error.message);
+                    return null;
+                }));
+        }
+
+        return this._titlePictures.get(meta.id);
+    }
+
+    // A PNG keeps its own bytes behind an object URL; a decoded picture goes through a canvas.
+    static _imageUrl(image) {
+        if (image === null) {
+            return null;
+        }
+        if (image instanceof Blob) {
+            return URL.createObjectURL(image);
+        }
+        const canvas  = document.createElement('canvas');
+        canvas.width  = image.width;
+        canvas.height = image.height;
+        canvas.getContext('2d').putImageData(image, 0, 0);
+
+        return canvas.toDataURL();
+    }
+
+    static _releaseUrl(url) {
+        if ((url !== null) && url.startsWith('blob:')) {
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    // A failed read is not kept: the next request reads again.
+    _readWad(meta) {
+        if (!this._wadFiles.has(meta.id)) {
+            this._wadFiles.set(meta.id, this._registry.getWadFile(meta.id).catch((error) => {
+                this._wadFiles.delete(meta.id);
+                throw error;
+            }));
+        }
+
+        return this._wadFiles.get(meta.id);
     }
 
     // Difficulty kept for this session, preselected by the difficulty screen.
@@ -128,7 +190,7 @@ class MenuNavigator {
     // the menu sounds become audible as decoding lands and the title music
     // starts then (the request waits for the load).
     _playWadMusic(meta) {
-        doomSound.loadFromRegistry(this._registry, meta).playMenuMusic();
+        doomSound.loadInBackground(this._readWad(meta), meta.id).playMenuMusic();
     }
 
     openMultiplayer(meta) {
@@ -207,11 +269,58 @@ class MenuNavigator {
     }
 
     /**
-     * New game requested → pick the episode.
+     * New game requested → pick the episode; a single episode is no choice: straight to the difficulty.
      * @param {object} meta
      */
-    openEpisodes(meta) {
-        this._switchTo(this._episodeScreen.setWad(meta));
+    async openEpisodes(meta) {
+        const asking = this._currentScreen;
+        let episodes;
+        try {
+            episodes = await this._readEpisodes(meta);
+        } catch (error) {
+            if (this._currentScreen === asking) {
+                this._switchTo(this._episodeScreen.setWad(meta, [], error));
+            }
+            return;
+        }
+        // Left during the read: the screen the player went to stays.
+        if (this._currentScreen !== asking) {
+            return;
+        }
+        if (episodes.length === 1) {
+            this.openDifficulty(meta, episodes[0]);
+            return;
+        }
+        this._switchTo(this._episodeScreen.setWad(meta, episodes));
+    }
+
+    // Back from the difficulty: to the episodes, or past them when there was no choice.
+    async leaveDifficulty(meta) {
+        const asking = this._currentScreen;
+        let episodes = [];
+        try {
+            episodes = await this._readEpisodes(meta);
+        } catch (error) {
+            console.warn('MenuNavigator - unable to read the episodes of [' + meta.name + ']: ' + error.message);
+        }
+        if (this._currentScreen !== asking) {
+            return;
+        }
+        if (episodes.length === 1) {
+            this.leaveEpisodes(meta);
+            return;
+        }
+        this.openEpisodes(meta);
+    }
+
+    // The promise is kept, not its result: two requests during the read share it, and a WAD list shown meanwhile
+    // (which empties the map) is not refilled by a read that lands after it.
+    _readEpisodes(meta) {
+        if (!this._episodes.has(meta.id)) {
+            this._episodes.set(meta.id, this._readWad(meta).then((wadFile) => WadRegistry.episodesOf(wadFile)));
+        }
+
+        return this._episodes.get(meta.id);
     }
 
     /**
@@ -220,11 +329,16 @@ class MenuNavigator {
      * @param {object} meta
      * @param {object} episode {episode, firstLevel, name} entry of getEpisodes
      */
-    openDifficulty(meta, episode) {
+    // The header names the episode when the WAD has several: read here, a navigator back from a game has not yet.
+    async openDifficulty(meta, episode) {
         if (this._launch !== null) {
             this._launch.episode = episode;
         }
-        this._switchTo(this._difficultyScreen.setWad(meta, episode));
+        const asking   = this._currentScreen;
+        const episodes = await this._readEpisodes(meta).catch(() => []);
+        if (this._currentScreen === asking) {
+            this._switchTo(this._difficultyScreen.setWad(meta, episode, (episodes.length > 1)));
+        }
     }
 
     /**

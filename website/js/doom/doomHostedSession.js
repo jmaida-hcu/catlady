@@ -235,7 +235,8 @@ class DoomHostedSession {
             this._cancelStart();
             return;
         }
-        new MenuModal(this._startDisplay).confirm(appTranslator.get(this._game.getRules().sessionStopCodes().confirm), () => this._cancelStart());
+        new MenuModal(this._startDisplay).confirm(appTranslator.get(this._game.getRules().sessionStopCodes().confirm), () => this._cancelStart(),
+            null, null, false, appTranslator.get('multiplayer.pause.stopDetail'));
     }
 
     // Without the WAD's identity no session opens: the menu says why.

@@ -1,5 +1,5 @@
 {
-    "version": "v1.1284",
+    "version": "v1.1311",
     "files": {
         "assets": [
             "/assets/uzdoom/doom/sprite/chip1.png",
@@ -36,7 +36,8 @@
             "/assets/uzdoom/heretic/levelPatches.json",
             "/lib/libadlmidi/libadlmidi.dosbox.slim.processor.js",
             "/lib/libadlmidi/libadlmidi.dosbox.slim.core.wasm",
-            "/lib/zxing-wasm/zxing_full.wasm"
+            "/lib/zxing-wasm/zxing_full.wasm",
+            "/lib/oswald/oswald.woff2"
         ],
         "css": [
             "/css/webapp/appMenu.css",
@@ -328,6 +329,7 @@
             "/js/doom/net/doomNetCommandCodec.js",
             "/js/doom/net/doomReplicaApplier.js",
             "/js/doom/menu/menuModal.js",
+            "/js/doom/menu/menuAddWadModal.js",
             "/js/doom/menu/menuOptionsModal.js",
             "/js/doom/menu/menuSaveSlotsModal.js",
             "/js/doom/menu/abstractGameMenuModal.js",

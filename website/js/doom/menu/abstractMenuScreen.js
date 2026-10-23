@@ -1,7 +1,7 @@
 /**
  * Base class of the Spipu-Doom menu screens: the socle skeleton
- * (AppMenuAbstractScreen) with the doom title, the WAD panels, the doom modals
- * and the WAD error messages.
+ * (AppMenuAbstractScreen) with the doom title, the simple menus of a WAD over
+ * its title picture, the doom modals and the WAD error messages.
  */
 
 class AbstractMenuScreen extends AppMenuAbstractScreen {
@@ -19,8 +19,28 @@ class AbstractMenuScreen extends AppMenuAbstractScreen {
         return 'Spipu-Doom';
     }
 
-    _buildWadPanel(wadMeta, subtitleLabel) {
-        return this._buildPanel(this._wadTitle(wadMeta) + ' — ' + subtitleLabel);
+    // Simple menu of a WAD over its title picture, once read: the WAD's title as the header of its own menu, the step
+    // as the header of the next ones (the WAD then under it).
+    _buildWadMenu(wadMeta, stepText = null, detailText = null) {
+        const wadTitle  = this._wadTitle(wadMeta);
+        const parts     = ((stepText === null)
+            ? this._buildSimpleMenu(wadTitle)
+            : this._buildSimpleMenu(stepText, [wadTitle, detailText].filter((part) => (part !== null)).join(' · ')));
+        const container = this._container;
+        this._navigator.getTitlePictureUrl(wadMeta).then((url) => {
+            if ((url !== null) && (this._container === container)) {
+                this._setBackground(url);
+            }
+        });
+
+        return parts;
+    }
+
+    _addBackItem(listEl) {
+        const item = this._nav.addItemIn(listEl, appTranslator.get('menu.back'), () => this._onBack());
+        this._nav.setBackTarget(item);
+
+        return item;
     }
 
     _wadTitle(meta) {
@@ -35,8 +55,8 @@ class AbstractMenuScreen extends AppMenuAbstractScreen {
         this._openModal(new MenuOptionsModal(this._display)).showHelp();
     }
 
-    _confirm(message, onConfirm) {
-        return new MenuModal(this._display).confirm(message, onConfirm);
+    _confirm(message, onConfirm, confirmLabel = null, cancelLabel = null, destructive = false, detail = null) {
+        return new MenuModal(this._display).confirm(message, onConfirm, confirmLabel, cancelLabel, destructive, detail);
     }
 
     _showError(error) {

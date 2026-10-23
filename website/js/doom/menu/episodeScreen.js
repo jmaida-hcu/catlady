@@ -1,74 +1,55 @@
 /**
  * Screen after "New game": pick the episode, native Doom flow. The episodes
  * are detected from the WAD's level codes and named by the game profile
- * (WadRegistry.getEpisodes). The screen always shows, even for a single
- * unnamed episode (MAPxx sets show one bare "Episode 1" entry) — a
- * standardized flow rather than the vanilla Doom II menu skip.
+ * (WadRegistry.getEpisodes), read by the navigator before it shows the screen:
+ * a WAD of a single episode skips it.
  */
 class EpisodeScreen extends AbstractMenuScreen {
     /**
      * @param {MenuNavigator} navigator
      * @param {AppMenuDisplay}   display
-     * @param {WadRegistry}   registry
      */
-    constructor(navigator, display, registry) {
+    constructor(navigator, display) {
         super(navigator, display);
 
-        this._registry = registry;
         this._wadMeta  = null;
+        this._episodes = [];
+        this._error    = null;
     }
 
     /**
-     * @param {object} meta
+     * @param {object}      meta
+     * @param {object[]}    episodes - [{episode, firstLevel, name}]
+     * @param {Error|null}  error    - why they could not be read
      */
-    setWad(meta) {
-        this._wadMeta = meta;
+    setWad(meta, episodes, error = null) {
+        this._wadMeta  = meta;
+        this._episodes = episodes;
+        this._error    = error;
 
         return this;
     }
 
     _build() {
-        const {panel, listEl} = this._buildWadPanel(this._wadMeta, appTranslator.get('menu.episode.title'));
+        const {listEl} = this._buildWadMenu(this._wadMeta, appTranslator.get('menu.episode.title'));
 
-        this._addStatus(panel);
-
-        this._addBackButton(panel);
-
-        this._loadEpisodes(listEl);
+        if (this._error !== null) {
+            this._addStatus();
+            this._showError(this._error);
+        } else if (this._episodes.length === 0) {
+            this._addListEmpty(listEl, appTranslator.get('menu.episode.empty'));
+        }
+        for (const episode of this._episodes) {
+            this._addListItem(listEl, this._episodeLabel(episode), () => {
+                this._navigator.openDifficulty(this._wadMeta, episode);
+            });
+        }
+        this._addBackItem(listEl);
+        this._nav.selectFirst();
     }
 
     _onBack() {
         this._navigator.leaveEpisodes(this._wadMeta);
-    }
-
-    // --- Internal ---
-
-    async _loadEpisodes(listEl) {
-        this._setStatus(appTranslator.get('menu.episode.reading'));
-
-        let episodes;
-        try {
-            episodes = await this._registry.getEpisodes(this._wadMeta.id);
-        } catch (error) {
-            this._showError(error);
-            return;
-        }
-
-        this._clearStatus();
-        this._clearList(listEl);
-
-        if (episodes.length === 0) {
-            this._addListEmpty(listEl, appTranslator.get('menu.episode.empty'));
-            return;
-        }
-
-        for (const episode of episodes) {
-            const item = this._addListItem(listEl, this._episodeLabel(episode), () => {
-                this._navigator.openDifficulty(this._wadMeta, episode);
-            });
-            this._addListItemInfos(item, episode.firstLevel);
-        }
-        this._nav.selectFirst();
     }
 
     // "Episode {n}", with " - {name}" appended when the profile names it —

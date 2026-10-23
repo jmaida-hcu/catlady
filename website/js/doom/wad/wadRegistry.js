@@ -165,12 +165,11 @@ class WadRegistry {
      * provides the display name (a proper noun, never translated — null when
      * it declares none: the screen then only shows the episode number).
      *
-     * @param {int} id
-     * @returns {Promise<object[]>} [{episode, firstLevel, name}]
+     * @param {WadFile} wadFile
+     * @returns {object[]} [{episode, firstLevel, name}]
      */
-    async getEpisodes(id) {
-        const wadFile = await this.getWadFile(id);
-        const names   = new GameProfileList().getForWad(wadFile).episodeNames();
+    static episodesOf(wadFile) {
+        const names = new GameProfileList().getForWad(wadFile).episodeNames();
 
         return WadRegistry._episodeStarts(wadFile.getLevelNames()).map((entry) => ({
             ...entry,

@@ -1,55 +1,115 @@
 /*
  * Spipu-Doom theme of the menus: colours, fonts, borders and backgrounds of the
  * app-menu-* structure (css/webapp/appMenu.css, loaded first), plus the doom
- * screens and modals. Every size is in em, like the structure.
+ * screens and modals. Every size is in em, like the structure. Blood red on
+ * black, Oswald for the titles, entries and buttons, the system sans-serif for
+ * the long texts.
  */
 
 .app-menu-display {
+    --app-menu-arrow-shift: 0.045em;
+    --app-menu-cap-height: 0.84em;
     background:
-        radial-gradient(ellipse at center, rgba(60, 12, 8, 0.40), rgba(0, 0, 0, 0.95) 75%),
+        radial-gradient(ellipse at 50% 40%, rgba(70, 14, 9, 0.45), rgba(0, 0, 0, 0.96) 75%),
         #000;
+    color: #FFF;
+    font-family: system-ui, "Segoe UI", "Helvetica", "Arial", sans-serif;
 }
 
 .app-menu-display-transparent {
     background: none;
 }
 
-/* --- Title (same identity as the loading screen) --- */
+/* A menu over the frozen game (pause, end of a level): the game layer itself is blurred and darkened — a
+   backdrop-filter does not blur a WebGL canvas everywhere. */
+#screen:has(> .doom-menu-frozen .app-menu-overlay) > :not(.app-menu-display) {
+    filter: blur(6px) brightness(0.45);
+}
+
+.app-menu-screen-title,
+.app-menu-header-title,
+.app-menu-detail-title,
+.app-menu-subtitle,
+.app-menu-item,
+.app-menu-button,
+.app-menu-modal-title,
+.app-menu-modal-heading,
+.app-menu-fact-label,
+.app-menu-pairing-step-number,
+.doom-menu-tally-label,
+.doom-menu-tally-time-value,
+.doom-menu-tally-value {
+    font-family: "Oswald", "Arial Narrow", sans-serif;
+}
+
+/* --- Brand, header (same identity as the loading screen) --- */
 .app-menu-screen-title {
     color: #C0392B;
-    font-size: 2.2em;
-    font-weight: bold;
+    font-size: 1.1em;
+    font-weight: 600;
     letter-spacing: 0.25em;
     text-transform: uppercase;
-    margin-bottom: 0.4em;
     text-shadow: 0 0 0.8em rgba(192, 57, 43, 0.45);
 }
 
-/* --- Central panel --- */
-.app-menu-panel {
-    background: rgba(20, 8, 6, 0.55);
-    border: 0.06em solid rgba(192, 57, 43, 0.35);
-    border-radius: 0.3em;
-    padding: 1em 1.2em;
-    box-shadow: 0 0 1.5em rgba(192, 57, 43, 0.15);
+.app-menu-header-title {
+    color: #FFF;
+    font-size: 2.6em;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    text-shadow: 0 0 0.4em rgba(192, 57, 43, 0.6), 0 0.08em 0.2em rgba(0, 0, 0, 0.8);
 }
 
+.app-menu-header-subtitle {
+    margin-top: 0.5em;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.85em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-shadow: 0 0.08em 0.2em rgba(0, 0, 0, 0.8);
+}
+
+/* The title screen of the WAD, behind its menus: dark and blurred enough for the entries to read over it, its
+   edges sinking into black. */
+.app-menu-screen-background {
+    filter: blur(0.35em) brightness(0.28) saturate(0.7);
+    box-shadow: inset 0 0 6em 3em #000;
+}
+
+/* --- List screen: no box, a column of rows and the detail panel --- */
 .app-menu-subtitle {
     color: rgba(255, 255, 255, 0.75);
-    font-size: 1.05em;
-    letter-spacing: 0.25em;
+    font-size: 1em;
+    font-weight: 500;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    border-bottom: 0.05em solid rgba(192, 57, 43, 0.25);
+    border-bottom: max(0.05em, 1px) solid rgba(192, 57, 43, 0.45);
 }
 
-.doom-menu-subtitle-with-action {
-    display: flex;
-    align-items: center;
-    gap: 0.6em;
+.app-menu-detail {
+    border-left: max(0.08em, 2px) solid #C0392B;
+    padding: 0.2em 0 0.2em 1.2em;
 }
 
-.doom-menu-subtitle-action {
-    margin-left: auto;
+.app-menu-detail-title {
+    font-size: 1.6em;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.app-menu-fact-label {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.8em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+}
+
+.app-menu-fact-value {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.85em;
 }
 
 .app-menu-list,
@@ -63,124 +123,203 @@
     border-radius: 0.1em;
 }
 
+/* --- Entries --- */
 .app-menu-item {
-    background: rgba(255, 255, 255, 0.04);
-    border: max(0.04em, 1px) solid transparent;
-    border-radius: 0.2em;
-    color: #FFF;
+    margin-bottom: 0;
+    border-bottom: max(0.04em, 1px) solid rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.78);
 }
 
 /* Hovering only moves the shared selection (mouse, keyboard and gamepad all
    drive the same highlighted entry). Pre-brightened colors, no filter: a
    filter here makes iOS re-run its text autosizing on the selected label. */
 .app-menu-item-selected {
-    border-color: rgba(231, 76, 60, 0.8);
-    background: rgba(231, 76, 60, 0.18);
+    background: linear-gradient(90deg, rgba(231, 76, 60, 0.28), rgba(231, 76, 60, 0) 85%);
+    color: #FFF;
 }
 
 /* Press feedback: a beat brighter than the selection, before the action. */
 .app-menu-item-pressed {
-    border-color: #E74C3C;
-    background: rgba(231, 76, 60, 0.45);
+    background: linear-gradient(90deg, rgba(231, 76, 60, 0.55), rgba(231, 76, 60, 0.05) 85%);
 }
 
 .app-menu-item-label {
     font-size: 1em;
-    letter-spacing: 0.08em;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.app-menu-item-arrow,
+.app-menu-item-chevron {
+    color: #E74C3C;
 }
 
 .app-menu-item-infos {
-    color: rgba(255, 255, 255, 0.28);
-    font-size: 0.75em;
-    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: system-ui, "Segoe UI", "Helvetica", "Arial", sans-serif;
+    font-size: 0.85em;
+    letter-spacing: 0.04em;
+}
+
+.app-menu-item-value {
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.9em;
+    letter-spacing: 0.04em;
+}
+
+.app-menu-item-selected .app-menu-item-value-cycle {
+    color: #FFF;
 }
 
 .app-menu-color-swatch {
     border-radius: 0.15em;
 }
 
-/* Setting row value (right side of the item, the label pushes it there). */
-.app-menu-item-value {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.9em;
-    letter-spacing: 0.1em;
+.app-menu-item-disabled {
+    opacity: 0.4;
 }
 
-.app-menu-button.app-menu-item-delete {
-    font-size: 0.85em;
-    /* Single glyph: the button letter-spacing would trail it off-centre. */
-    letter-spacing: 0;
-    line-height: 1;
+/* Simple menu: no band, the label lights up between its two arrows. */
+.app-menu-list-simple .app-menu-item {
+    border-bottom: none;
+    padding: 0.35em 0.6em;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 0.08em 0.2em rgba(0, 0, 0, 0.8);
 }
 
-.app-menu-empty {
-    color: rgba(255, 255, 255, 0.28);
-    font-size: 0.85em;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
+.app-menu-list-simple .app-menu-item-label {
+    font-size: 1.2em;
+    letter-spacing: 0.12em;
 }
 
-/* --- Add form --- */
-.doom-menu-form {
-    flex-shrink: 0;
-    display: flex;
-    gap: 0.5em;
-}
-
-.doom-menu-input {
-    flex: 1;
-    background: rgba(0, 0, 0, 0.5);
-    border: 0.06em solid rgba(255, 255, 255, 0.15);
-    border-radius: 0.25em;
+.app-menu-list-simple .app-menu-item-selected {
+    background: none;
     color: #FFF;
-    font-size: 0.85em;
-    padding: 0.5em 0.7em;
-    outline: none;
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
-    user-select: text;
+    text-shadow: 0 0 0.45em rgba(231, 76, 60, 0.95), 0 0 1.2em rgba(192, 57, 43, 0.6);
 }
 
-.doom-menu-input::placeholder {
-    color: rgba(255, 255, 255, 0.25);
+.app-menu-list-simple .app-menu-item-pressed {
+    background: none;
+    color: #FFB3A8;
 }
 
-.doom-menu-input:focus {
-    border-color: rgba(192, 57, 43, 0.6);
+.app-menu-item.app-menu-item-add {
+    border: max(0.06em, 1px) dashed rgba(231, 76, 60, 0.5);
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.doom-menu-file-input {
-    display: none;
-}
-
-/* Buttons, same gradient as the loading bar. Three shared states: dimmed at
-   rest, full on hover or keyboard/gamepad focus, brighter while pressed (the
-   press feedback of AppMenuDom.addButton). */
-.app-menu-button {
-    background: linear-gradient(to right, #8E2A1E, #E74C3C);
-    border: none;
-    border-radius: 0.25em;
+.app-menu-item.app-menu-item-add.app-menu-item-selected {
+    border-color: #E74C3C;
     color: #FFF;
-    font-weight: bold;
+}
+
+.app-menu-tag {
+    padding: 0.1em 0.5em;
+    border: max(0.04em, 1px) solid #E74C3C;
+    border-radius: 0.2em;
+    color: #E74C3C;
     font-size: 0.8em;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    filter: brightness(70%);
+}
+
+.app-menu-ping {
+    color: #6FCF6F;
+    font-size: 0.8em;
+}
+
+.app-menu-ping[data-level="1"] {
+    color: #E74C3C;
+}
+
+.app-menu-ping[data-level="2"] {
+    color: #E8C35C;
+}
+
+.app-menu-empty {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85em;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* A sentence under the empty label: uppercase and faint would drown it. One
+   element per line: each language breaks where it reads best. */
+.doom-menu-empty-hint {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8em;
+    line-height: 1.45;
+    text-align: center;
+    padding: 0 1.5em;
+}
+
+.doom-menu-empty-hint:last-child {
+    padding-bottom: 1.2em;
+}
+
+/* --- Buttons: outlined secondary, filled primary --- */
+.app-menu-button {
+    background: linear-gradient(to right, #A8301F, #E74C3C);
+    border: max(0.06em, 1px) solid #E74C3C;
+    border-radius: 0.2em;
+    color: #FFF;
+    font-weight: 600;
+    font-size: 0.8em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
 .app-menu-button:hover,
 .app-menu-button-focus {
-    filter: brightness(100%);
+    background: linear-gradient(to right, #C0392B, #FF6A55);
+    border-color: #FF8A78;
+    box-shadow: 0 0 0.9em rgba(231, 76, 60, 0.6);
+}
+
+.app-menu-button-secondary {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(231, 76, 60, 0.45);
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.app-menu-button-secondary:hover,
+.app-menu-button-secondary.app-menu-button-focus {
+    background: rgba(231, 76, 60, 0.14);
+    border-color: #E74C3C;
+    color: #FFF;
 }
 
 .app-menu-button:disabled {
-    filter: grayscale(1);
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.35);
+    box-shadow: none;
 }
 
 .app-menu-button-pressed,
 .app-menu-button-pressed:hover {
-    filter: brightness(130%);
+    background: #FF6A55;
+    border-color: #FFB3A8;
+    color: #FFF;
+}
+
+
+.app-menu-button.app-menu-item-delete {
+    background: none;
+    border-color: transparent;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.app-menu-item-selected .app-menu-button.app-menu-item-delete {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.app-menu-button.app-menu-item-delete:hover,
+.app-menu-button.app-menu-item-delete.app-menu-button-focus {
+    border-color: #E74C3C;
+    color: #FFF;
 }
 
 /* --- Footer (version + webapp stats) --- */
@@ -191,34 +330,74 @@
     text-transform: uppercase;
 }
 
+/* --- Tabs --- */
+.app-menu-button.app-menu-tab {
+    background: transparent;
+    border-color: transparent;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.app-menu-button.app-menu-tab:hover,
+.app-menu-button.app-menu-tab.app-menu-button-focus {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: #E74C3C;
+    color: #FFF;
+}
+
+.app-menu-button.app-menu-tab-active {
+    background: rgba(231, 76, 60, 0.16);
+    color: #FFF;
+    box-shadow: inset 0 -0.15em 0 #E74C3C;
+}
+
+/* --- Modals --- */
 .app-menu-overlay {
     background: rgba(0, 0, 0, 0.7);
 }
 
+/* Over the running game (death menu, lobby), a darker veil; over the blurred frozen game, a lighter one. */
+.app-menu-display-transparent .app-menu-overlay {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.doom-menu-frozen .app-menu-overlay {
+    background: rgba(0, 0, 0, 0.35);
+}
+
 .app-menu-modal {
-    background: rgba(20, 8, 6, 0.95);
-    border: 0.06em solid rgba(192, 57, 43, 0.5);
-    border-radius: 0.3em;
-    box-shadow: 0 0 2em rgba(192, 57, 43, 0.3);
+    background: linear-gradient(180deg, #1E0D0A, #0D0605);
+    border: max(0.04em, 1px) solid rgba(192, 57, 43, 0.35);
+    border-top: max(0.1em, 2px) solid #E74C3C;
+    border-radius: 0.2em;
+    box-shadow: 0 0.8em 2.4em rgba(0, 0, 0, 0.7);
 }
 
 .app-menu-modal-message {
     color: rgba(255, 255, 255, 0.85);
-    font-size: 0.95em;
+    font-size: 1em;
+    line-height: 1.45;
+}
+
+.app-menu-modal-question {
+    color: #FFF;
+    font-size: 1.15em;
+    font-weight: 600;
+}
+
+.app-menu-modal-title {
+    color: #FFF;
+    font-size: 1.15em;
+    font-weight: 600;
     letter-spacing: 0.1em;
+    text-transform: uppercase;
 }
 
 .app-menu-modal-loading {
     animation: doomMenuPulse 1.2s ease-in-out infinite;
 }
 
-/* A tally with a players' table: room for four columns and their names. */
-.doom-menu-modal-tally {
-    width: 80%;
-}
-
 .app-menu-modal-error {
-    color: rgba(231, 76, 60, 0.95);
+    color: #FF7A68;
 }
 
 .app-menu-modal-detail {
@@ -239,36 +418,138 @@
     }
 }
 
+.app-menu-modal-heading {
+    color: #FFF;
+    font-size: 1.05em;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+}
+
+.app-menu-modal-link {
+    color: #E74C3C;
+    font-size: 0.95em;
+}
+
+.app-menu-modal-link:hover {
+    color: #FF8A78;
+}
+
+.app-menu-modal-line {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9em;
+    line-height: 1.55;
+}
+
+/* Tiles of a choice (add a WAD) and the address field. */
+.app-menu-button.app-menu-tile {
+    color: #FFF;
+}
+
+.app-menu-tile::before {
+    color: #E74C3C;
+}
+
+.app-menu-tile-hint {
+    color: rgba(255, 255, 255, 0.6);
+    font-family: system-ui, "Segoe UI", "Helvetica", "Arial", sans-serif;
+    font-weight: normal;
+}
+
+.app-menu-input {
+    background: rgba(0, 0, 0, 0.5);
+    border: max(0.06em, 1px) solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.2em;
+    color: #FFF;
+    font-size: 0.9em;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+.app-menu-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.app-menu-input:focus {
+    border-color: #E74C3C;
+}
+
+/* --- End of a level: the time large, a bar per score --- */
+.doom-menu-modal-tally {
+    width: 56%;
+}
+
+/* A tally with a players' table: room for four columns and their names. */
+.doom-menu-modal-tally-players {
+    width: 80%;
+}
+
 .doom-menu-tally {
     margin-bottom: 1.4em;
-    border-top: 0.06em solid rgba(192, 57, 43, 0.35);
+}
+
+.doom-menu-tally-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0.8em;
+}
+
+.doom-menu-tally-time-value {
+    color: #FFF;
+    font-size: 2.6em;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
 }
 
 .doom-menu-tally-line {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 1.2em;
-    padding: 0.55em 0.2em;
-    border-bottom: 0.06em solid rgba(192, 57, 43, 0.2);
+    display: grid;
+    grid-template-columns: 6em 1fr 7.5em;
+    align-items: center;
+    gap: 1em;
+    padding: 0.5em 0.2em;
+    border-top: max(0.04em, 1px) solid rgba(192, 57, 43, 0.2);
 }
 
 .doom-menu-tally-label {
     color: rgba(255, 255, 255, 0.6);
     font-size: 0.8em;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
 }
 
+.doom-menu-tally-bar {
+    height: 0.35em;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.2em;
+    overflow: hidden;
+}
+
+.doom-menu-tally-bar-fill {
+    height: 100%;
+    background: linear-gradient(to right, #A8301F, #E74C3C);
+}
+
 .doom-menu-tally-value {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.92);
     font-size: 0.9em;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
+    text-align: right;
     white-space: nowrap;
 }
 
+.doom-menu-tally-percent {
+    display: inline;
+    margin-left: 0.5em;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9em;
+}
+
 /* Cooperative and deathmatch tally: one column per player, set by the code,
-   under the common time line. */
+   under the time. */
 .doom-menu-tally-table {
     display: grid;
     overflow-x: auto;
@@ -276,7 +557,7 @@
 
 .doom-menu-tally-table > * {
     padding: 0.55em 0.2em 0.55em 1.2em;
-    border-bottom: 0.06em solid rgba(192, 57, 43, 0.2);
+    border-top: max(0.04em, 1px) solid rgba(192, 57, 43, 0.2);
 }
 
 .doom-menu-tally-table > .doom-menu-tally-label {
@@ -296,10 +577,6 @@
     text-overflow: ellipsis;
 }
 
-.doom-menu-tally-table .doom-menu-tally-value {
-    text-align: right;
-}
-
 /* Story text between two chapters. Capped like the options modal, so a long
    text scrolls inside the modal instead of growing it past the screen. */
 .doom-menu-modal-finale {
@@ -317,7 +594,7 @@
     padding-right: 0.6em;
     color: rgba(255, 255, 255, 0.85);
     font-size: 1em;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     line-height: 1.75;
     text-align: left;
     /* The catalog keeps the paragraph breaks;
@@ -325,110 +602,24 @@
     white-space: pre-line;
 }
 
-.app-menu-button-secondary {
-    background: none;
-    border: 0.1em solid rgba(192, 57, 43, 0.5);
-    color: rgba(255, 255, 255, 0.65);
-}
-
-.app-menu-button-secondary:hover {
-    background: rgba(192, 57, 43, 0.15);
-}
-
-/* --- Corner buttons + options modal --- */
-/* Globe marking the language button as a switch: the autonym alone reads as a
-   label, not as a command. Drawn rather than taken from the emoji font, whose
-   glyph carries its own blue and ignores `color`: these strokes are
-   currentColor, so the mark follows the button's theme and its hover. */
-.doom-menu-language {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5em;
-}
-
-.doom-menu-language::before {
-    /* One masked SVG rather than a border plus two gradients: the three strokes
-       then share a single stroke-width, where an elliptical gradient scales its
-       stops per axis and thickens the meridian at the poles. The mask paints
-       currentColor, so the mark still follows the button. */
-    --globe: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="1.6"><circle cx="12" cy="12" r="10.5"/><ellipse cx="12" cy="12" rx="5.2" ry="10.5"/><path d="M1.5 12h21"/></svg>');
-    content: '';
-    flex: 0 0 auto;
-    width: 1em;
-    height: 1em;
-    background-color: currentColor;
-    -webkit-mask: var(--globe) center / contain no-repeat;
-    mask: var(--globe) center / contain no-repeat;
-}
-
-/* Screen-level buttons (language, then help) in a row anchored to the
-   top-right corner, so help keeps the exact spot it has always had. Placement
-   only: the metrics and the visual states come from app-menu-button, and each
-   button keeps its natural width. */
-.doom-menu-corner {
-    position: absolute;
-    top: 0.4em;
-    right: 0.5em;
-    display: flex;
-    flex-direction: row;
-    gap: 0.4em;
-}
-
-/* Generic text line of a modal page (about, controls...). */
-/* Uppercase and faint like the empty label above it would drown a sentence.
-   One element per line: each language breaks where it reads best. */
-.doom-menu-empty-hint {
-    color: rgba(255, 255, 255, 0.55);
-    font-size: 0.8em;
-    line-height: 1.45;
-    text-align: center;
-    padding: 0 1.5em;
-}
-
-.doom-menu-empty-hint:last-child {
-    padding-bottom: 1.2em;
-}
-
-.app-menu-modal-heading {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.1em;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.app-menu-modal-link {
-    color: #c0392b;
-    font-size: 1em;
-    letter-spacing: 0.08em;
-}
-
-.app-menu-modal-link:hover {
-    color: #e74c3c;
-}
-
-.app-menu-modal-line {
-    color: rgba(255, 255, 255, 0.75);
-    font-size: 1em;
-    letter-spacing: 0.08em;
-    line-height: 1.55;
-}
-
 /* --- Status / error --- */
 .app-menu-status {
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.5);
     font-size: 0.8em;
     letter-spacing: 0.12em;
+    text-align: center;
     text-transform: uppercase;
 }
 
 .app-menu-status-error {
-    color: #E74C3C;
+    color: #FF7A68;
 }
 
+/* --- On-screen keyboard: the key size of the structure, only the skin --- */
 .app-menu-text-field {
     background: rgba(0, 0, 0, 0.5);
-    border: 0.06em solid rgba(192, 57, 43, 0.6);
-    border-radius: 0.25em;
+    border: none;
+    border-bottom: max(0.08em, 2px) solid #E74C3C;
     color: #FFF;
     font-size: 1.4em;
     letter-spacing: 0.2em;
@@ -439,12 +630,28 @@
 }
 
 .app-menu-button.app-menu-key {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.18);
     font-size: 1.35em;
     /* Single glyph: the button letter-spacing would trail it off-centre. */
     letter-spacing: 0;
     line-height: 1;
 }
 
+.app-menu-button.app-menu-key:hover,
+.app-menu-button.app-menu-key.app-menu-button-focus {
+    background: rgba(231, 76, 60, 0.18);
+    border-color: #E74C3C;
+}
+
+.app-menu-button.app-menu-key.app-menu-key-validate {
+    background: linear-gradient(to right, #A8301F, #E74C3C);
+    border-color: #E74C3C;
+}
+
+.app-menu-button.app-menu-key.app-menu-button-pressed {
+    background: #FF6A55;
+}
 
 /* --- Pairing (AppMenuPairingModal): theme of its frames and captions --- */
 /* The code draws its own white square, quiet zone included: around it, fullscreen stays dark. */
@@ -456,6 +663,24 @@
 .app-menu-pairing-caption,
 .app-menu-pairing-status {
     color: rgba(255, 255, 255, 0.85);
+}
+
+.app-menu-pairing-step-number {
+    background: #E74C3C;
+    color: #FFF;
+    font-weight: 600;
+    font-size: 0.8em;
+}
+
+.app-menu-pairing-viewfinder,
+.app-menu-pairing-zoom {
+    color: #E74C3C;
+}
+
+.app-menu-pairing-scan {
+    background: #E74C3C;
+    box-shadow: 0 0 0.6em #E74C3C;
+    opacity: 0.85;
 }
 
 /* --- Message over the running game (a turn waiting for a player) --- */

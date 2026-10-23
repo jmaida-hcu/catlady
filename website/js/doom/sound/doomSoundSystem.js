@@ -113,17 +113,17 @@ class DoomSoundSystem {
      * Fire-and-forget load used by the menu — no modal: the menu sounds become
      * audible as soon as the decoding lands.
      *
-     * @param {WadRegistry} registry
-     * @param {object} meta WAD metadata
+     * @param {Promise<WadFile>} wadFile - the WAD the menu reads anyway (title picture, episodes)
+     * @param {int}              wadId
      */
-    loadFromRegistry(registry, meta) {
-        if ((this._engine === null) || (this._wadId === meta.id)) {
+    loadInBackground(wadFile, wadId) {
+        if ((this._engine === null) || (this._wadId === wadId)) {
             return this;
         }
-        registry.getWadFile(meta.id)
-            .then((wadFile) => this.loadForWad(wadFile, meta.id))
+        wadFile
+            .then((file) => this.loadForWad(file, wadId))
             .catch((error) => {
-                console.warn('DoomSoundSystem - unable to load the sounds of [' + meta.id + ']: ' + error.message);
+                console.warn('DoomSoundSystem - unable to load the sounds of [' + wadId + ']: ' + error.message);
             });
 
         return this;

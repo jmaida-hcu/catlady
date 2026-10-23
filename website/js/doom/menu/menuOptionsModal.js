@@ -1,6 +1,7 @@
 /**
- * Options modal of the menus: show() opens the options root (settings topics,
- * controls, reset), showAbout() and showHelp() open a standalone page. Adds to
+ * Options modal of the menus: show() opens the tabs (display, game,
+ * multiplayer outside a game, sound, controls) with the reset button,
+ * showAbout() and showHelp() open a standalone page. Adds to
  * AppMenuSettingsModal the Controls page (device choice, then the settings of
  * that device; their key, button and axis captures are the socle's).
  */
@@ -50,7 +51,17 @@ class MenuOptionsModal extends AppMenuSettingsModal {
     }
 
     show() {
-        return this._open(false, 'menu.game.options', () => this._buildRoot());
+        const tabs = [
+            {titleCode: 'help.display', builder: () => this._buildSettingsPage('display.')},
+            {titleCode: 'help.game', builder: () => this._buildSettingsPage('game.')}
+        ];
+        if (!this._inGame) {
+            tabs.push({titleCode: 'help.multiplayer', builder: () => this._buildSettingsPage('multiplayer.')});
+        }
+        tabs.push({titleCode: 'help.sound', builder: () => this._buildSettingsPage('sound.')});
+        tabs.push({titleCode: 'help.controls', builder: () => this._buildControls()});
+
+        return this._openTabs('menu.game.options', tabs, {labelCode: 'help.reset', action: () => this._confirmReset()});
     }
 
     // The multiplayer section alone, from the shortcut of the Multiplayer screen.
@@ -85,26 +96,13 @@ class MenuOptionsModal extends AppMenuSettingsModal {
 
     // --- Pages ---
 
-    _buildRoot() {
-        const list = this._addList();
-        this._nav.addItemIn(list, appTranslator.get('help.display'), () => this._pushPage('help.display', () => this._buildSettingsPage('display.')));
-        this._nav.addItemIn(list, appTranslator.get('help.game'), () => this._pushPage('help.game', () => this._buildSettingsPage('game.')));
-        if (!this._inGame) {
-            this._nav.addItemIn(list, appTranslator.get('help.multiplayer'), () => this._pushPage('help.multiplayer', () => this._buildSettingsPage('multiplayer.')));
-        }
-        this._nav.addItemIn(list, appTranslator.get('help.sound'), () => this._pushPage('help.sound', () => this._buildSettingsPage('sound.')));
-        this._nav.addItemIn(list, appTranslator.get('help.controls'), () => this._pushPage('help.controls', () => this._buildControls()));
-        this._nav.addItemIn(list, appTranslator.get('help.reset'), () => this._confirmReset());
-        this._nav.selectFirst();
-    }
-
     // Wipes every saved setting after a confirmation.
     _confirmReset() {
         this._confirm(appTranslator.get('help.resetConfirm'), () => {
             doomSettings.resetAll();
             this._applySettings();
             this._renderPage();
-        }, null, appTranslator.get('menu.back'));
+        }, null, null, true, appTranslator.get('help.resetDetail'));
     }
 
     _buildControls() {
@@ -115,7 +113,7 @@ class MenuOptionsModal extends AppMenuSettingsModal {
         }, (dir) => {
             this._stepDevice(inputs, dir);
         });
-        AppMenuDom.addText(device, 'app-menu-item-value', this._deviceChoiceLabel(this._currentDeviceChoice(inputs), inputs));
+        AppMenuDom.addValue(device, this._deviceChoiceLabel(this._currentDeviceChoice(inputs), inputs), true);
 
         this._shownDevices = this._devicesState(inputs);
         for (const prefix of MenuOptionsModal.SETTING_PREFIXES_BY_MODE[inputs.getMode()]) {
@@ -195,12 +193,13 @@ class MenuOptionsModal extends AppMenuSettingsModal {
     }
 
     _buildHelp() {
+        const add = appTranslator.get('menu.wad.add') + ' › ';
         this._addLines(['help.guide.wad', 'help.guide.freedoom'], {
-            addFile: appTranslator.get('menu.wad.addFile')
+            addFile: add + appTranslator.get('menu.wad.byFile')
         });
         this._addExternalLink(DoomExternalLinks.FREEDOOM);
         this._addLines(['help.guide.own', 'help.guide.install', 'help.guide.controls'], {
-            addUrl: appTranslator.get('menu.wad.addUrl')
+            addUrl: add + appTranslator.get('menu.wad.byUrl')
         });
 
         this._addHeading(appTranslator.get('help.about'));

@@ -64,17 +64,71 @@ class DoomTranslations {
                 it: 'https://esempio.com/file.wad',
                 es: 'https://ejemplo.com/archivo.wad'
             },
-            'menu.wad.addUrl': {
-                fr: 'Ajouter par URL',
-                en: 'Add by URL',
-                it: 'Aggiungi da URL',
-                es: 'Añadir por URL'
+            'menu.wad.add': {
+                fr: 'Ajouter un fichier WAD',
+                en: 'Add a WAD file',
+                it: 'Aggiungi un file WAD',
+                es: 'Añadir un archivo WAD'
             },
-            'menu.wad.addFile': {
+            'menu.wad.byUrl': {
+                fr: 'Par URL',
+                en: 'By URL',
+                it: 'Tramite URL',
+                es: 'Por URL'
+            },
+            'menu.wad.byUrlTitle': {
+                fr: 'Ajouter un fichier WAD par URL',
+                en: 'Add a WAD file by URL',
+                it: 'Aggiungi un file WAD tramite URL',
+                es: 'Añadir un archivo WAD por URL'
+            },
+            'menu.wad.byUrlHint': {
+                fr: 'Télécharger le WAD depuis une adresse internet',
+                en: 'Download the WAD from a web address',
+                it: 'Scarica il WAD da un indirizzo internet',
+                es: 'Descargar el WAD desde una dirección de internet'
+            },
+            'menu.wad.addButton': {
+                fr: 'Ajouter',
+                en: 'Add',
+                it: 'Aggiungi',
+                es: 'Añadir'
+            },
+            'menu.wad.byFile': {
                 fr: 'Fichier local',
                 en: 'Local file',
                 it: 'File locale',
                 es: 'Archivo local'
+            },
+            'menu.wad.byFileHint': {
+                fr: 'Choisir un fichier .wad de cet appareil',
+                en: 'Pick a .wad file on this device',
+                it: 'Scegli un file .wad di questo dispositivo',
+                es: 'Elegir un archivo .wad de este dispositivo'
+            },
+            'menu.wad.play': {
+                fr: 'Jouer',
+                en: 'Play',
+                it: 'Gioca',
+                es: 'Jugar'
+            },
+            'menu.wad.version': {
+                fr: 'Version',
+                en: 'Version',
+                it: 'Versione',
+                es: 'Versión'
+            },
+            'menu.wad.size': {
+                fr: 'Taille',
+                en: 'Size',
+                it: 'Dimensione',
+                es: 'Tamaño'
+            },
+            'menu.wad.addedAt': {
+                fr: 'Ajouté le',
+                en: 'Added on',
+                it: 'Aggiunto il',
+                es: 'Añadido el'
             },
             'menu.wad.urlMissing': {
                 fr: 'Saisissez une URL',
@@ -148,6 +202,12 @@ class DoomTranslations {
                 it: 'Eliminare {wad}?',
                 es: '¿Eliminar {wad}?'
             },
+            'menu.wad.deleteDetail': {
+                fr: 'Ses sauvegardes sont supprimées avec lui.',
+                en: 'Its saves are deleted with it.',
+                it: 'I suoi salvataggi vengono eliminati con esso.',
+                es: 'Sus partidas guardadas se eliminan con él.'
+            },
             'menu.wad.loading': {
                 fr: 'Chargement de {wad}',
                 en: 'Loading {wad}',
@@ -156,6 +216,12 @@ class DoomTranslations {
             },
 
             // WAD menu (one WAD selected)
+            'menu.game.continue': {
+                fr: 'Continuer',
+                en: 'Continue',
+                it: 'Continua',
+                es: 'Continuar'
+            },
             'menu.game.newGame': {
                 fr: 'Nouvelle partie',
                 en: 'New game',
@@ -175,10 +241,10 @@ class DoomTranslations {
                 es: 'Opciones'
             },
             'menu.game.quit': {
-                fr: 'Quitter {wad}',
-                en: 'Quit {wad}',
-                it: 'Esci da {wad}',
-                es: 'Salir de {wad}'
+                fr: 'Quitter',
+                en: 'Quit',
+                it: 'Esci',
+                es: 'Salir'
             },
             'menu.game.reportBug': {
                 fr: 'Déclarer un bug',
@@ -260,22 +326,16 @@ class DoomTranslations {
             // nouns carried by the game profiles, never translated — like the
             // level names.
             'menu.episode.title': {
-                fr: 'Épisode',
-                en: 'Episode',
-                it: 'Episodio',
-                es: 'Episodio'
+                fr: 'Choix de l\'épisode',
+                en: 'Choose the episode',
+                it: 'Scelta dell\'episodio',
+                es: 'Elección del episodio'
             },
             'menu.episode.item': {
                 fr: 'Épisode {episode}',
                 en: 'Episode {episode}',
                 it: 'Episodio {episode}',
                 es: 'Episodio {episode}'
-            },
-            'menu.episode.reading': {
-                fr: 'Lecture du WAD...',
-                en: 'Reading the WAD...',
-                it: 'Lettura del WAD...',
-                es: 'Leyendo el WAD...'
             },
             'menu.episode.empty': {
                 fr: 'Aucun niveau trouvé dans ce WAD',
@@ -285,16 +345,10 @@ class DoomTranslations {
             },
 
             'menu.difficulty.title': {
-                fr: 'Difficulté',
-                en: 'Difficulty',
-                it: 'Difficoltà',
-                es: 'Dificultad'
-            },
-            'menu.difficulty.skill': {
-                fr: 'Niveau {skill}',
-                en: 'Level {skill}',
-                it: 'Livello {skill}',
-                es: 'Nivel {skill}'
+                fr: 'Choix de la difficulté',
+                en: 'Choose the difficulty',
+                it: 'Scelta della difficoltà',
+                es: 'Elección de la dificultad'
             },
 
             // Level launch modal
@@ -337,16 +391,22 @@ class DoomTranslations {
                 es: 'Controles'
             },
             'help.reset': {
-                fr: 'Réinitialiser tous les paramétrages',
-                en: 'Reset every setting',
+                fr: 'Réinitialiser tous les paramètres',
+                en: 'Reset all settings',
                 it: 'Reimposta tutte le impostazioni',
                 es: 'Restablecer todos los ajustes'
             },
             'help.resetConfirm': {
-                fr: 'Supprimer tous les paramétrages enregistrés ?',
+                fr: 'Supprimer tous les paramètres enregistrés ?',
                 en: 'Delete every saved setting?',
                 it: 'Eliminare tutte le impostazioni salvate?',
                 es: '¿Eliminar todos los ajustes guardados?'
+            },
+            'help.resetDetail': {
+                fr: 'Tous les réglages reviennent à leur valeur par défaut, contrôles compris.',
+                en: 'Every setting goes back to its default, the controls included.',
+                it: 'Tutte le impostazioni tornano al valore predefinito, comandi compresi.',
+                es: 'Todos los ajustes vuelven a su valor predeterminado, controles incluidos.'
             },
             'help.about': {
                 fr: 'À propos',
@@ -409,10 +469,10 @@ class DoomTranslations {
                 es: 'Código fuente del proyecto:'
             },
             'help.about.licence': {
-                fr: 'Licence MIT — à l\'exception des graphismes de decals d\'impact et des textes de fin de chapitre, repris d\'UZDoom sous licence GPL v3, et du synthétiseur musical libADLMIDI, embarqué sous licence LGPL v3.',
-                en: 'MIT licence — except the impact decal graphics and the end-of-chapter texts, taken from UZDoom under the GPL v3 licence, and the libADLMIDI music synthesizer, embedded under the LGPL v3 licence.',
-                it: 'Licenza MIT — a eccezione della grafica dei segni d\'impatto e dei testi di fine capitolo, ripresi da UZDoom con licenza GPL v3, e del sintetizzatore musicale libADLMIDI, incorporato con licenza LGPL v3.',
-                es: 'Licencia MIT — salvo los gráficos de las marcas de impacto y los textos de fin de capítulo, tomados de UZDoom bajo licencia GPL v3, y el sintetizador musical libADLMIDI, integrado bajo licencia LGPL v3.'
+                fr: 'Licence MIT — à l\'exception des graphismes de decals d\'impact et des textes de fin de chapitre, repris d\'UZDoom sous licence GPL v3, du synthétiseur musical libADLMIDI, embarqué sous licence LGPL v3, et de la police Oswald, sous licence SIL OFL 1.1.',
+                en: 'MIT licence — except the impact decal graphics and the end-of-chapter texts, taken from UZDoom under the GPL v3 licence, the libADLMIDI music synthesizer, embedded under the LGPL v3 licence, and the Oswald font, under the SIL OFL 1.1 licence.',
+                it: 'Licenza MIT — a eccezione della grafica dei segni d\'impatto e dei testi di fine capitolo, ripresi da UZDoom con licenza GPL v3, del sintetizzatore musicale libADLMIDI, incorporato con licenza LGPL v3, e del carattere Oswald, con licenza SIL OFL 1.1.',
+                es: 'Licencia MIT — salvo los gráficos de las marcas de impacto y los textos de fin de capítulo, tomados de UZDoom bajo licencia GPL v3, el sintetizador musical libADLMIDI, integrado bajo licencia LGPL v3, y la tipografía Oswald, bajo licencia SIL OFL 1.1.'
             },
             'help.about.wads': {
                 fr: 'Aucun fichier WAD n\'est fourni. Utilisez un WAD libre comme Freedoom, ou vos propres fichiers dont vous détenez les droits — Doom et ses données de jeu restent la propriété de leurs ayants droit.',
@@ -592,16 +652,16 @@ class DoomTranslations {
                 es: 'Reiniciar el nivel'
             },
             'game.level.restartConfirm': {
-                fr: 'Recommencer le niveau ? Chaque joueur repart avec l\'équipement qu\'il avait en y entrant.',
-                en: 'Restart the level? Every player starts again with the equipment they had on entering it.',
-                it: 'Ricominciare il livello? Ogni giocatore riparte con l\'equipaggiamento che aveva entrandoci.',
-                es: '¿Reiniciar el nivel? Cada jugador vuelve a empezar con el equipo que tenía al entrar.'
+                fr: 'Recommencer le niveau ?',
+                en: 'Restart the level?',
+                it: 'Ricominciare il livello?',
+                es: '¿Reiniciar el nivel?'
             },
-            'game.level.restartButton': {
-                fr: 'Recommencer',
-                en: 'Restart',
-                it: 'Ricomincia',
-                es: 'Reiniciar'
+            'game.level.restartDetail': {
+                fr: 'Chaque joueur repart avec l\'équipement qu\'il avait en y entrant.',
+                en: 'Every player starts again with the equipment they had on entering it.',
+                it: 'Ogni giocatore riparte con l\'equipaggiamento che aveva entrandoci.',
+                es: 'Cada jugador vuelve a empezar con el equipo que tenía al entrar.'
             },
             'game.level.loading': {
                 fr: 'Chargement du niveau {level}',
@@ -1038,10 +1098,16 @@ class DoomTranslations {
                 es: 'Salir de la pantalla compartida'
             },
             'multiplayer.pause.stopConfirm': {
-                fr: 'Arrêter le partage ?\nTous les joueurs seront déconnectés.',
-                en: 'Stop sharing?\nEvery player will be disconnected.',
-                it: 'Interrompere la condivisione?\nTutti i giocatori saranno disconnessi.',
-                es: '¿Dejar de compartir?\nTodos los jugadores serán desconectados.'
+                fr: 'Arrêter le partage ?',
+                en: 'Stop sharing?',
+                it: 'Interrompere la condivisione?',
+                es: '¿Dejar de compartir?'
+            },
+            'multiplayer.pause.stopDetail': {
+                fr: 'Tous les joueurs seront déconnectés.',
+                en: 'Every player will be disconnected.',
+                it: 'Tutti i giocatori saranno disconnessi.',
+                es: 'Todos los jugadores serán desconectados.'
             },
             'multiplayer.pause.switchToCooperative': {
                 fr: 'Passer en coopératif',
@@ -1056,10 +1122,10 @@ class DoomTranslations {
                 es: 'Detener el cooperativo'
             },
             'multiplayer.pause.stopCoopConfirm': {
-                fr: 'Arrêter le coopératif ?\nTous les joueurs seront déconnectés.',
-                en: 'Stop cooperative?\nEvery player will be disconnected.',
-                it: 'Interrompere la cooperativa?\nTutti i giocatori saranno disconnessi.',
-                es: '¿Detener el cooperativo?\nTodos los jugadores serán desconectados.'
+                fr: 'Arrêter le coopératif ?',
+                en: 'Stop cooperative?',
+                it: 'Interrompere la cooperativa?',
+                es: '¿Detener el cooperativo?'
             },
             'multiplayer.pause.stopDeathmatch': {
                 fr: 'Arrêter le deathmatch',
@@ -1068,10 +1134,10 @@ class DoomTranslations {
                 es: 'Detener el deathmatch'
             },
             'multiplayer.pause.stopDeathmatchConfirm': {
-                fr: 'Arrêter le deathmatch ?\nTous les joueurs seront déconnectés.',
-                en: 'Stop deathmatch?\nEvery player will be disconnected.',
-                it: 'Interrompere il deathmatch?\nTutti i giocatori saranno disconnessi.',
-                es: '¿Detener el deathmatch?\nTodos los jugadores serán desconectados.'
+                fr: 'Arrêter le deathmatch ?',
+                en: 'Stop deathmatch?',
+                it: 'Interrompere il deathmatch?',
+                es: '¿Detener el deathmatch?'
             },
             'multiplayer.pause.leaveGame': {
                 fr: 'Quitter la partie',
